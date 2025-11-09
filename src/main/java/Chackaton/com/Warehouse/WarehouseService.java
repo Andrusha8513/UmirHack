@@ -27,4 +27,11 @@ public class WarehouseService {
         return warehouseRepository.save(warehouse);
 
     }
+
+    public Warehouse findById(Long warehouseId){
+        return warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new IllegalArgumentException("Скалада с таким " + warehouseId + "не существует"));
+    }
+
+
 }

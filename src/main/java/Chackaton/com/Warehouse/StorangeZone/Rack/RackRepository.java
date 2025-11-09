@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RackRepository extends JpaRepository<Rack , Long> {
-    boolean existsByWarehouseAndCode(StorageZone storageZone, String code);
+    boolean existsByZoneAndCode(StorageZone storageZone, String code);
 
-    Optional<Rack> findByWarehouseAndCode(StorageZone storageZone, String code);
+    Optional<Rack> findByZoneAndCode(StorageZone storageZone, String code);
 
     List<Rack> findByZone(StorageZone zone);
 }

@@ -17,6 +17,12 @@ public class ProductDto {
     private Boolean inStock;
     private Long previewImageId;
 
+    private Double weight;           // Вес в кг
+    private Double length;           // Длина в см
+    private Double width;            // Ширина в см
+    private Double height;           // Высота в см
+    private Double volume;
+
     // Поле для модального окна редактирования
     private List<ImageDto> images;
 
@@ -40,7 +46,12 @@ public class ProductDto {
                       String manufacturer,
                       String carBrand,
                       Boolean inStock,
-                      Long previewImageId){
+                      Long previewImageId,
+                      Double weight,
+                      Double length,
+                      Double width,
+                      Double height,
+                      Double volume){
         this.id = id;
         this.name = name;
         this.quantity = quantity;
@@ -53,7 +64,11 @@ public class ProductDto {
         this.carBrand = carBrand;
         this.inStock = inStock;
         this.previewImageId = previewImageId;
-
+        this.weight = weight;
+        this.length = length;
+        this.height = height;
+        this.width = width;
+        this.volume = volume;
     }
 
 //    public ProductDto(String articleNumber,
@@ -147,4 +162,44 @@ public class ProductDto {
 
     public void setImages(List<ImageDto> images) {
         this.images = images; }
+
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public Double getLength() {
+        return length;
+    }
+
+    public void setLength(Double length) {
+        this.length = length;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getWidth() {
+        return width;
+    }
+
+    public void setWidth(Double width) {
+        this.width = width;
+    }
 }

@@ -1,4 +1,4 @@
-package Organization;
+package Chackaton.com.Organization;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

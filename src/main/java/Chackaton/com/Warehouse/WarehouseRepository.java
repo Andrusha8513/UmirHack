@@ -1,6 +1,6 @@
 package Chackaton.com.Warehouse;
 
-import Organization.Organization;
+import Chackaton.com.Organization.Organization;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WarehouseRepository extends JpaRepository<Warehouse , Long> {
@@ -9,4 +9,6 @@ public interface WarehouseRepository extends JpaRepository<Warehouse , Long> {
 
     int countByOrganizationId(Long organizationId);
     int countByOrganization(Organization organization);
+
+
 }

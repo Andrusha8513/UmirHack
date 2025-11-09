@@ -1,9 +1,7 @@
 package Chackaton.com.Warehouse;
 
-import Chackaton.com.Warehouse.StorangeZone.Rack.Rack;
-import Chackaton.com.Warehouse.StorangeZone.StorageType;
 import Chackaton.com.Warehouse.StorangeZone.StorageZone;
-import Organization.Organization;
+import Chackaton.com.Organization.Organization;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 

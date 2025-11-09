@@ -12,7 +12,7 @@ public class RackService {
     }
 
     public Rack createRack(Rack rack){
-        if(rackRepository.existsByWarehouseAndCode(rack.getZone()  , rack.getCode())){
+        if(rackRepository.existsByZoneAndCode(rack.getZone()  , rack.getCode())){
             throw new RuntimeException("Стеллаж с кодом " + rack.getCode() + "уже существует в это зоне");
         }
         return rackRepository.save(rack);

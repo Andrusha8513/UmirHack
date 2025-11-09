@@ -96,11 +96,11 @@ public class StorageZone {
         this.name = name;
     }
 
-    public StorageType getStorageType() {
-        return storageType;
+    public Set<StorageType> getStorageTypes() {
+        return storageTypes;
     }
 
-    public void setStorageType(StorageType storageType) {
-        this.storageType = storageType;
+    public void setStorageTypes(Set<StorageType> storageTypes) {
+        this.storageTypes = storageTypes;
     }
 }

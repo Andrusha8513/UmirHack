@@ -1,5 +1,6 @@
 package Chackaton.com.Product;
 
+import Chackaton.com.Warehouse.Stock.StockItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import Chackaton.com.Image.Image;
@@ -25,8 +26,14 @@ public class Product {
     private String carBrand;
     private Boolean inStock;
 
-    private Long summ;
+    private Double weight;           // Вес в кг
+    private Double length;           // Длина в см
+    private Double width;            // Ширина в см
+    private Double height;           // Высота в см
+    private Double volume;
 
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<StockItem> stockItems = new ArrayList<>();
 
     public Product(String articleNumber,
                    String brand,
@@ -38,7 +45,12 @@ public class Product {
                    String manufacturer,
                    String carBrand,
                    Double price,
-                   Integer quantity) {
+                   Integer quantity,
+                   Double weight,
+                   Double length,
+                   Double width,
+                   Double height,
+                   Double volume) {
         this.articleNumber = articleNumber;
         this.brand = brand;
         this.category = category;
@@ -50,12 +62,15 @@ public class Product {
         this.carBrand = carBrand;
         this.price = price;
         this.quantity = quantity;
-
+        this.weight = weight;
+        this.length = length;
+        this.height = height;
+        this.width = width;
+        this.volume = volume;
     }
 
     public Product() {
     }
-
 
 
     public String getManufacturer() {
@@ -78,10 +93,11 @@ public class Product {
         this.name = name;
     }
 
-    public String getCarBrand(){
+    public String getCarBrand() {
         return carBrand;
     }
-    public void setCarBrand(String carBrand){
+
+    public void setCarBrand(String carBrand) {
         this.carBrand = carBrand;
     }
 
@@ -141,10 +157,48 @@ public class Product {
         this.inStock = inStock;
     }
 
+    public Double getLength() {
+        return length;
+    }
 
+    public void setLength(Double length) {
+        this.length = length;
+    }
 
+    public Double getVolume() {
+        return volume;
+    }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product") //mappedBy очень важная хуйня по итогу , чтобы не забыть см. word файл Spting boot
+    public void setVolume(Double volume) {
+        this.volume = volume;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getWidth() {
+        return width;
+    }
+
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public void setWidth(Double width) {
+        this.width = width;
+    }
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product")
+
     private List<Image> images = new ArrayList<>();
     private Long previewImageId;
     private LocalDate dateOfCreated;
@@ -183,10 +237,30 @@ public class Product {
     }
 
 
-    public Long getPreviewImageId(){
+    public Long getPreviewImageId() {
         return previewImageId;
     }
 
 
+    // Метод для получения общего количества на всех складах
+    public Integer getTotalQuantityInOrganization(Organization organization) {
+        if (stockItems == null) return 0;
+        return stockItems.stream()
+                .filter(item -> item.getOrganization().equals(organization))
+                .mapToInt(StockItem::getQuantity)
+                .sum();
+    }
 
+    // Метод для получения местоположения товара
+    public List<String> getProductLocations(Organization organization) {
+        if (stockItems == null) return new ArrayList<>();
+        return stockItems.stream()
+                .filter(item -> item.getOrganization().equals(organization) && item.getQuantity() > 0)
+                .map(item -> String.format("Склад: %s, Зона: %s, Стеллаж: %s, Полка: %s",
+                        item.getShelf().getRack().getZone().getWarehouse().getName(),
+                        item.getShelf().getRack().getZone().getName(),
+                        item.getShelf().getRack().getCode(),
+                        item.getShelf().getCode()))
+                .collect(Collectors.toList());
+    }
 }

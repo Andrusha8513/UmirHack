@@ -1,0 +1,49 @@
+package Chackaton.com.Warehouse.StorangeZone;
+
+import Chackaton.com.Warehouse.Warehouse;
+import org.springframework.stereotype.Service;
+
+@Service
+public class StorageZoneService {
+
+    private final StorageZoneRepository storageZoneRepository;
+
+    public StorageZoneService (StorageZoneRepository  storageZoneRepository){
+        this.storageZoneRepository =storageZoneRepository;
+    }
+
+    public StorageZone createStorageZone(StorageZone storageZone, Warehouse warehouse) {
+        // Проверяем уникальность имени в рамках склада
+        if (storageZoneRepository.existsByNameAndWarehouse(storageZone.getName(), warehouse)) {
+            throw new IllegalArgumentException("Зона с названием '" + storageZone.getName() + "' уже существует на этом складе");
+        }
+
+        // Устанавливаем связь со складом
+        storageZone.setWarehouse(warehouse);
+
+        return storageZoneRepository.save(storageZone);
+    }
+
+    public StorageZone updateStorageZone(Long zoneId, StorageZone updatedZone) {
+        StorageZone existingZone = storageZoneRepository.findById(zoneId)
+                .orElseThrow(() -> new RuntimeException("Зона не найдена"));
+
+        existingZone.setName(updatedZone.getName());
+        existingZone.setDescription(updatedZone.getDescription());
+        existingZone.setStorageTypes(updatedZone.getStorageTypes());
+
+        return storageZoneRepository.save(existingZone);
+    }
+
+    public void deleteStorageZone(Long zoneId) {
+        StorageZone zone = storageZoneRepository.findById(zoneId)
+                .orElseThrow(() -> new RuntimeException("Зона не найдена"));
+
+        // Проверяем, нет ли связанных стеллажей
+        if (!zone.getRacks().isEmpty()) {
+            throw new RuntimeException("Невозможно удалить зону: имеются связанные стеллажи");
+        }
+
+        storageZoneRepository.delete(zone);
+    }
+}

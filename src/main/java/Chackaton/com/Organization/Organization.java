@@ -1,4 +1,4 @@
-package Organization;
+package Chackaton.com.Organization;
 
 import Chackaton.com.Users.Users;
 import jakarta.persistence.*;

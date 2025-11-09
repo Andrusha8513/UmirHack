@@ -1,5 +1,8 @@
 package Chackaton.com.Product;
 
+import Chackaton.com.Organization.Organization;
+import Chackaton.com.Warehouse.Stock.StockItem;
+import Chackaton.com.Warehouse.Stock.StockItemRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,10 +30,14 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
+    private final StockItemRepository stockItemRepository;
 
-    public ProductService(ProductRepository productRepository, ImageRepository imageRepository) {
+    public ProductService(ProductRepository productRepository,
+                          ImageRepository imageRepository,
+                          StockItemRepository stockItemRepository) {
         this.productRepository = productRepository;
         this.imageRepository = imageRepository;
+        this.stockItemRepository = stockItemRepository;
     }
 
 
@@ -135,6 +142,7 @@ public class ProductService {
     }
 
 
+
     @Transactional
     public void setProductPreviewImage(Long productId, Long imageId) {
         Product product = findById(productId);
@@ -206,7 +214,7 @@ public class ProductService {
             products = productRepository.findAllWithImages();
         }
         return products.stream()
-                .map(this::toProductDto) // Используем маппер
+                .map(this::toProductDto)
                 .collect(Collectors.toList());
     }
 
@@ -215,7 +223,7 @@ public class ProductService {
     public ProductDto findByIdAsDto(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Продукта с таким id " + id + " нет"));
-        return toProductDto(product); // Используем маппер
+        return toProductDto(product);
     }
 
     private ProductDto toProductDto(Product product) {
@@ -232,6 +240,11 @@ public class ProductService {
         dto.setCarBrand(product.getCarBrand());
         dto.setInStock(product.getInStock());
         dto.setPreviewImageId(product.getPreviewImageId());
+        dto.setWeight(product.getWeight());
+        dto.setWidth(product.getWidth());
+        dto.setLength(product.getLength());
+        dto.setHeight(product.getHeight());
+        dto.setVolume(product.getVolume());
 
         // ВАЖНО:  безопасно обращаюсь к ленивой коллекции ВНУТРИ транзакции
         List<ImageDto> imageDto = product.getImages().stream()
@@ -241,7 +254,41 @@ public class ProductService {
 
         return dto;
     }
+    public Double calculateVolume(Product product) {
 
+        if (product.getLength() != null && product.getWidth() != null && product.getHeight() != null) {
+            return (product.getLength() * product.getWidth() * product.getHeight()) / 1000000.0; // из см³ в м³
+        }
+        return null;
+    }
+
+
+    // Получить общее количество товара в организации
+    public Integer getTotalProductQuantityInOrganization(Product product, Organization organization) {
+        List<StockItem> stockItems = stockItemRepository.findByProductAndOrganization(product, organization);
+        return stockItems.stream()
+                .mapToInt(StockItem::getQuantity)
+                .sum();
+    }
+
+    // Получить местоположение товара в организации
+    public List<String> getProductLocations(Product product, Organization organization) {
+        List<StockItem> stockItems = stockItemRepository.findByProductAndOrganization(product, organization);
+
+        return stockItems.stream()
+                .filter(item -> item.getQuantity() > 0)
+                .map(item -> String.format("Склад: %s, Зона: %s, Стеллаж: %s, Полка: %s",
+                        item.getShelf().getRack().getZone().getWarehouse().getName(),
+                        item.getShelf().getRack().getZone().getName(),
+                        item.getShelf().getRack().getCode(),
+                        item.getShelf().getCode()))
+                .collect(Collectors.toList());
+    }
+
+    // Получить детальную информацию о размещении товара
+    public List<StockItem> getProductStockDetails(Product product, Organization organization) {
+        return stockItemRepository.findByProductAndOrganization(product, organization);
+    }
 
 }
 
