@@ -16,7 +16,7 @@ public class Organization {
     private String name;
     private String address;
 
-    @OneToOne(cascade = CascadeType.REFRESH , fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private Users owner;
 
     private LocalDateTime createdAt;
@@ -74,5 +74,13 @@ public class Organization {
 
     public void setOwner(Users owner) {
         this.owner = owner;
+    }
+
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
     }
 }

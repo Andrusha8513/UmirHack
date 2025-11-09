@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     Optional<Users> findByConfirmationCode(String code);
 
     List<Users> findByEnabledIsFalseAndRegistrationDateBefore(LocalDateTime dateTime);
+
 }

@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление зонами хранения</title>
+    <title>Управление полками</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="index.html">🏭 Складская система</a>
+        <a class="navbar-brand" href="/">🏭 Складская система</a>
         <div class="navbar-nav ms-auto">
-            <a class="nav-link text-white" href="organizations.html">Организации</a>
-            <a class="nav-link text-white" href="warehouses.html">Склады</a>
-            <a class="nav-link text-white" href="storage-zones.html">Зоны хранения</a>
-            <a class="nav-link text-white" href="racks.html">Стеллажи</a>
-            <a class="nav-link text-white" href="shelves.html">Полки</a>
-            <a class="nav-link text-white" href="stock.html">Запасы</a>
+            <a class="nav-link text-white" href="/organizations.html">Организации</a>
+            <a class="nav-link text-white" href="/warehouses.html">Склады</a>
+            <a class="nav-link text-white" href="/storage-zones.html">Зоны хранения</a>
+            <a class="nav-link text-white" href="/racks.html">Стеллажи</a>
+            <a class="nav-link text-white active" href="/shelves.html">Полки</a>
+            <a class="nav-link text-white" href="/stock.html">Запасы</a>
         </div>
     </div>
 </nav>
@@ -24,118 +24,152 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="mb-4">📍 Управление зонами хранения</h1>
+            <h1 class="mb-4">📦 Управление полками</h1>
 
-            <!-- Форма создания зоны хранения -->
+            <!-- Форма создания полки -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Создать новую зону хранения</h5>
+                    <h5 class="card-title mb-0">Создать новую полку</h5>
                 </div>
                 <div class="card-body">
-                    <form id="createStorageZoneForm">
+                    <form id="createShelfForm">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="zoneName" class="form-label">Название зоны *</label>
-                                    <input type="text" class="form-control" id="zoneName" required>
+                                    <label for="shelfCode" class="form-label">Код полки *</label>
+                                    <input type="text" class="form-control" id="shelfCode" placeholder="A-01-01, B-12-03" required>
+                                    <div class="form-text">Уникальный код полки в стеллаже</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="warehouseSelect" class="form-label">Склад *</label>
-                                    <select class="form-select" id="warehouseSelect" required>
-                                        <option value="">Выберите склад</option>
-                                        <option value="1">Основной склад</option>
-                                        <option value="2">Розничный склад</option>
-                                        <option value="3">Оптовый склад</option>
+                                    <label for="rackSelect" class="form-label">Стеллаж *</label>
+                                    <select class="form-select" id="rackSelect" required>
+                                        <option value="">Выберите стеллаж</option>
+                                        <option value="1">A-01 (Зона А - Паллеты)</option>
+                                        <option value="2">B-02 (Зона А - Паллеты)</option>
+                                        <option value="3">C-01 (Холодильная зона)</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="zoneDescription" class="form-label">Описание</label>
-                            <textarea class="form-control" id="zoneDescription" rows="3"></textarea>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="shelfLevel" class="form-label">Уровень</label>
+                                    <input type="number" class="form-control" id="shelfLevel" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="shelfPosition" class="form-label">Позиция</label>
+                                    <input type="number" class="form-control" id="shelfPosition" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="shelfMaxWeight" class="form-label">Макс. нагрузка (кг)</label>
+                                    <input type="number" step="0.01" class="form-control" id="shelfMaxWeight">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="shelfVolume" class="form-label">Объем (м³)</label>
+                                    <input type="number" step="0.01" class="form-control" id="shelfVolume">
+                                </div>
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Типы хранения</label>
+                            <label class="form-label">Статусы полки</label>
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="BULK" id="typeBulk">
-                                        <label class="form-check-label" for="typeBulk">Навалочное</label>
+                                        <input class="form-check-input" type="checkbox" value="EMPTY" id="statusEmpty" checked>
+                                        <label class="form-check-label" for="statusEmpty">Пустая</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="PALLET" id="typePallet">
-                                        <label class="form-check-label" for="typePallet">Паллетное</label>
+                                        <input class="form-check-input" type="checkbox" value="PARTIAL" id="statusPartial">
+                                        <label class="form-check-label" for="statusPartial">Частично заполнена</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="SHELF" id="typeShelf">
-                                        <label class="form-check-label" for="typeShelf">Стеллажное</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="REFRIGERATED" id="typeRefrigerated">
-                                        <label class="form-check-label" for="typeRefrigerated">Холодильник</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="FREEZER" id="typeFreezer">
-                                        <label class="form-check-label" for="typeFreezer">Морозильник</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="HAZARDOUS" id="typeHazardous">
-                                        <label class="form-check-label" for="typeHazardous">Для опасных грузов</label>
+                                        <input class="form-check-input" type="checkbox" value="FULL" id="statusFull">
+                                        <label class="form-check-label" for="statusFull">Полностью заполнена</label>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="VALUABLE" id="typeValuable">
-                                        <label class="form-check-label" for="typeValuable">Для ценных товаров</label>
+                                        <input class="form-check-input" type="checkbox" value="BLOCKED" id="statusBlocked">
+                                        <label class="form-check-label" for="statusBlocked">Заблокирована</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="RESERVED" id="statusReserved">
+                                        <label class="form-check-label" for="statusReserved">Зарезервирована</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-success">Создать зону хранения</button>
+                        <button type="submit" class="btn btn-success">Создать полку</button>
                     </form>
                 </div>
             </div>
 
-            <!-- Список зон хранения -->
+            <!-- Список полок -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Список зон хранения</h5>
+                    <h5 class="card-title mb-0">Список полок</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Название</th>
-                                <th>Описание</th>
-                                <th>Склад</th>
-                                <th>Типы хранения</th>
-                                <th>Дата создания</th>
+                                <th>Код</th>
+                                <th>Стеллаж</th>
+                                <th>Уровень</th>
+                                <th>Позиция</th>
+                                <th>Нагрузка</th>
+                                <th>Объем</th>
+                                <th>Статусы</th>
                                 <th>Действия</th>
                             </tr>
                             </thead>
-                            <tbody id="storageZonesTable">
+                            <tbody id="shelvesTable">
                             <tr>
-                                <td>Зона А - Паллеты</td>
-                                <td>Основная зона для паллетного хранения</td>
-                                <td>Основной склад</td>
-                                <td>Паллетное</td>
-                                <td>2024-01-15</td>
+                                <td>A-01-01</td>
+                                <td>A-01</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>100.0</td>
+                                <td>2.5</td>
+                                <td>Пустая</td>
                                 <td>
                                     <button class="btn btn-sm btn-warning me-1">Редактировать</button>
                                     <button class="btn btn-sm btn-danger">Удалить</button>
                                 </td>
                             </tr>
                             <tr>
-                                <td>Холодильная зона</td>
-                                <td>Для скоропортящихся товаров</td>
-                                <td>Основной склад</td>
-                                <td>Холодильник</td>
-                                <td>2024-01-20</td>
+                                <td>A-01-02</td>
+                                <td>A-01</td>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>100.0</td>
+                                <td>2.5</td>
+                                <td>Частично заполнена</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning me-1">Редактировать</button>
+                                    <button class="btn btn-sm btn-danger">Удалить</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>B-02-01</td>
+                                <td>B-02</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>75.0</td>
+                                <td>1.8</td>
+                                <td>Полностью заполнена</td>
                                 <td>
                                     <button class="btn btn-sm btn-warning me-1">Редактировать</button>
                                     <button class="btn btn-sm btn-danger">Удалить</button>
@@ -158,9 +192,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.getElementById('createStorageZoneForm').addEventListener('submit', function(e) {
+    document.getElementById('createShelfForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        alert('Зона хранения создана! В реальном приложении здесь будет API вызов.');
+        alert('Полка создана! В реальном приложении здесь будет API вызов.');
     });
 </script>
 </body>

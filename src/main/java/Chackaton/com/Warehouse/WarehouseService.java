@@ -1,5 +1,6 @@
 package Chackaton.com.Warehouse;
 
+import Chackaton.com.Organization.Organization;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,10 +21,13 @@ public class WarehouseService {
     }
 
 
-    public Warehouse createWarehouse(Warehouse warehouse) {
+    public Warehouse createWarehouse(Warehouse warehouse, Organization organization) {
+
+
         if (warehouseRepository.existsByNameAndOrganization(warehouse.getName(), warehouse.getOrganization())) {
             throw new IllegalArgumentException("Склад с таким названием уже существует в этой организации");
         }
+        warehouse.setOrganization(organization);
         return warehouseRepository.save(warehouse);
 
     }
@@ -33,5 +37,11 @@ public class WarehouseService {
                 .orElseThrow(() -> new IllegalArgumentException("Скалада с таким " + warehouseId + "не существует"));
     }
 
+    public void deleteWarehouse(Long id){
+        if(!warehouseRepository.existsById(id)){
+            throw new IllegalArgumentException("Склада с таким " + id + "нет");
+        }
+        warehouseRepository.deleteById(id);;
 
+    }
 }

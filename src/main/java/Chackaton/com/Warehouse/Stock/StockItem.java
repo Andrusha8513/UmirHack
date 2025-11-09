@@ -26,17 +26,17 @@ public class StockItem {
     @Column(nullable = false)
     private Integer quantity = 0;
 
-    // Для быстрых запросов и изоляции
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
 
-    // Дополнительная информация
+
     private String batchNumber;     // Номер партии
     private LocalDateTime expiryDate; // Срок годности
     private LocalDateTime manufacturedDate; // Дата производства
 
-    // Служебные поля
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

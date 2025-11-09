@@ -24,14 +24,14 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/forgot-password").setViewName("forward:/forgot-password.html");
 
 
-        registry.addViewController("/catalog.html").setViewName("forward:/catalog.html");
-        registry.addViewController("/index.html").setViewName("forward:/index.html");
-        registry.addViewController("/organizations.html").setViewName("forward:/organizations.html");
-        registry.addViewController("/warehouses.html").setViewName("forward:/warehouses.html");
-        registry.addViewController("/storage-zones.html").setViewName("forward:/storage-zones.html");
-        registry.addViewController("/racks.html").setViewName("forward:/racks.html");
-        registry.addViewController("/shelves.html").setViewName("forward:/shelves.html");
-        registry.addViewController("/stock.html").setViewName("forward:/stock.html");
+        registry.addViewController("/catalog").setViewName("forward:/catalog.html");
+        registry.addViewController("/index").setViewName("forward:/index.html");
+        registry.addViewController("/organizations").setViewName("forward:/organizations.html");
+        registry.addViewController("/warehouses").setViewName("forward:/warehouses.html");
+        registry.addViewController("/storage-zones").setViewName("forward:/storage-zones.html");
+        registry.addViewController("/racks").setViewName("forward:/racks.html");
+        registry.addViewController("/shelves").setViewName("forward:/shelves.html");
+        registry.addViewController("/stock").setViewName("forward:/stock.html");
 
 
 

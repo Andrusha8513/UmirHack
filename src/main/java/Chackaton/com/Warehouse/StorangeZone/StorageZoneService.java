@@ -13,12 +13,12 @@ public class StorageZoneService {
     }
 
     public StorageZone createStorageZone(StorageZone storageZone, Warehouse warehouse) {
-        // Проверяем уникальность имени в рамках склада
+
+
         if (storageZoneRepository.existsByNameAndWarehouse(storageZone.getName(), warehouse)) {
             throw new IllegalArgumentException("Зона с названием '" + storageZone.getName() + "' уже существует на этом складе");
         }
 
-        // Устанавливаем связь со складом
         storageZone.setWarehouse(warehouse);
 
         return storageZoneRepository.save(storageZone);
@@ -39,11 +39,16 @@ public class StorageZoneService {
         StorageZone zone = storageZoneRepository.findById(zoneId)
                 .orElseThrow(() -> new RuntimeException("Зона не найдена"));
 
-        // Проверяем, нет ли связанных стеллажей
+
         if (!zone.getRacks().isEmpty()) {
             throw new RuntimeException("Невозможно удалить зону: имеются связанные стеллажи");
         }
 
         storageZoneRepository.delete(zone);
+    }
+
+    public StorageZone  findById(Long id){
+        return storageZoneRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Не найдена зона с таким " + id));
     }
 }
