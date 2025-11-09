@@ -1,5 +1,6 @@
 package Chackaton.com.Product;
 
+import Chackaton.com.Organization.Organization;
 import Chackaton.com.Warehouse.Stock.StockItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import Chackaton.com.Image.Image;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "product")

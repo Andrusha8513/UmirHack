@@ -87,7 +87,20 @@ public class WebSecurityConfig {
                                 "/api/users/registration",
                                 "/api/users/confirm/**",
                                 "/api/users/password/**",
-                                "/api/users/resend-code" ).permitAll()
+                                "/api/users/resend-code",
+
+                                "/index.html",
+                                "/organizations.html",
+                                "/warehouses.html",
+                                "/storage-zones.html",
+                                "/racks.html",
+                                "/shelves.html",
+                                "/stock.html",
+                                "/catalog.html",
+                                "/AllProduct.html",
+                                "/my-orders.html",
+                                "/orders-admin.html",
+                                "/profile-edit.html").permitAll()
                         .requestMatchers("/", "registration", "/api/users/registration", "/api/users/confirm/**").permitAll()
                         .anyRequest().authenticated()
                 )
