@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление складами</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .org-info {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .entity-list {
+            margin-top: 20px;
+        }
+
+        .entity-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .entity-info {
+            flex-grow: 1;
+        }
+
+        .entity-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .hierarchy {
+            margin-left: 20px;
+            border-left: 2px solid #e9ecef;
+            padding-left: 20px;
+        }
+
+        .section-title {
+            margin: 20px 0 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+            background: #6c757d;
+        }
+
+        .product-assignment {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .product-assignment select {
+            flex-grow: 1;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-empty {
+            background-color: #28a745;
+        }
+
+        .status-partial {
+            background-color: #ffc107;
+        }
+
+        .status-full {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="container">
+        <h1>Управление складской структурой</h1>
+    </div>
+</div>
+
+<div class="container">
+    <button class="back-button" onclick="window.location.href='create_organization.html'">← Назад к организации</button>
+
+    <div class="org-info">
+        <h2 id="orgName">Название организации</h2>
+        <p id="orgAddress">Адрес организации</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="warehouses">Склады</div>
+        <div class="tab" data-tab="zones">Зоны</div>
+        <div class="tab" data-tab="racks">Стойки</div>
+        <div class="tab" data-tab="shelves">Ящики</div>
+        <div class="tab" data-tab="products">Товары</div>
+        <div class="tab" data-tab="assignments">Назначения</div>
+    </div>
+
+    <!-- Вкладка складов -->
+    <div id="warehouses" class="tab-content active">
+        <h3>Управление складами</h3>
+        <form id="warehouseForm">
+            <div class="form-group">
+                <label for="warehouseName">Название склада</label>
+                <input type="text" id="warehouseName" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseAddress">Адрес склада</label>
+                <input type="text" id="warehouseAddress" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseCapacity">Общая вместимость (паллеты)</label>
+                <input type="number" id="warehouseCapacity" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseArea">Общая площадь (м²)</label>
+                <input type="number" id="warehouseArea" step="0.1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseStatuses">Статусы склада</label>
+                <select id="warehouseStatuses" multiple>
+                    <option value="MAIN">Основной</option>
+                    <option value="RETAIL">Розничный</option>
+                    <option value="WHOLESALE">Оптовый</option>
+                    <option value="TRANSIT">Переходный</option>
+                    <option value="STORAGE">Долгосрочного хранения</option>
+                </select>
+                <small>Удерживайте Ctrl для выбора нескольких статусов</small>
+            </div>
+            <button type="submit">Создать склад</button>
+        </form>
+
+        <div class="entity-list" id="warehouseList">
+            <!-- Склады будут добавляться здесь динамически -->
+        </div>
+    </div>
+
+    <!-- Вкладка зон -->
+    <div id="zones" class="tab-content">
+        <h3>Управление зонами хранения</h3>
+        <form id="zoneForm">
+            <div class="form-group">
+                <label for="zoneWarehouse">Склад</label>
+                <select id="zoneWarehouse" required>
+                    <option value="">Выберите склад</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="zoneName">Название зоны</label>
+                <input type="text" id="zoneName" required>
+            </div>
+            <div class="form-group">
+                <label for="zoneDescription">Описание зоны</label>
+                <textarea id="zoneDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="zoneTypes">Типы хранения</label>
+                <select id="zoneTypes" multiple>
+                    <option value="BULK">Навалочное</option>
+                    <option value="PALLET">Паллетное</option>
+                    <option value="SHELF">Стеллажное</option>
+                    <option value="REFRIGERATED">Холодильник</option>
+                    <option value="FREEZER">Морозильник</option>
+                    <option value="HAZARDOUS">Для опасных грузов</option>
+                    <option value="VALUABLE">Для ценных товаров</option>
+                </select>
+                <small>Удерживайте Ctrl для выбора нескольких типов</small>
+            </div>
+            <button type="submit">Создать зону</button>
+        </form>
+
+        <div class="entity-list" id="zoneList">
+            <!-- Зоны будут добавляться здесь динамически -->
+        </div>
+    </div>
+
+    <!-- Вкладка стоек -->
+    <div id="racks" class="tab-content">
+        <h3>Управление стойками</h3>
+        <form id="rackForm">
+            <div class="form-group">
+                <label for="rackZone">Зона</label>
+                <select id="rackZone" required>
+                    <option value="">Выберите зону</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rackCode">Код стойки</label>
+                <input type="text" id="rackCode" placeholder="A-01, B-12" required>
+            </div>
+            <div class="form-group">
+                <label for="rackName">Название стойки</label>
+                <input type="text" id="rackName">
+            </div>
+            <div class="form-group">
+                <label for="rackLevels">Количество уровней</label>
+                <input type="number" id="rackLevels" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="rackMaxWeight">Максимальная нагрузка (кг)</label>
+                <input type="number" id="rackMaxWeight" step="0.1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="rackDimensions">Габариты (м)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="rackHeight" placeholder="Высота" step="0.1" min="0.1" required>
+                    <input type="number" id="rackWidth" placeholder="Ширина" step="0.1" min="0.1" required>
+                    <input type="number" id="rackDepth" placeholder="Глубина" step="0.1" min="0.1" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rackTypes">Типы стоек</label>
+                <select id="rackTypes" multiple>
+                    <option value="PALLET_RACK">Паллетные стеллажи</option>
+                    <option value="SHELF_RACK">Полочные стеллажи</option>
+                    <option value="CANTILEVER">Консольные</option>
+                    <option value="DRIVE_IN">Въездные</option>
+                    <option value="MOBILE">Мобильные</option>
+                    <option value="MEZZANINE">Мезонины</option>
+                </select>
+                <small>Удерживайте Ctrl для выбора нескольких типов</small>
+            </div>
+            <button type="submit">Создать стойку</button>
+        </form>
+
+        <div class="entity-list" id="rackList">
+            <!-- Стойки будут добавляться здесь динамически -->
+        </div>
+    </div>
+
+    <!-- Вкладка ящиков -->
+    <div id="shelves" class="tab-content">
+        <h3>Управление ящиками</h3>
+        <form id="shelfForm">
+            <div class="form-group">
+                <label for="shelfRack">Стойка</label>
+                <select id="shelfRack" required>
+                    <option value="">Выберите стойку</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="shelfCode">Код ящика</label>
+                <input type="text" id="shelfCode" placeholder="A-01-01, B-12-03" required>
+            </div>
+            <div class="form-group">
+                <label for="shelfLevel">Уровень</label>
+                <input type="number" id="shelfLevel" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="shelfPosition">Позиция на уровне</label>
+                <input type="number" id="shelfPosition" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="shelfMaxWeight">Максимальный вес (кг)</label>
+                <input type="number" id="shelfMaxWeight" step="0.1" min="0.1" required>
+            </div>
+            <div class="form-group">
+                <label for="shelfVolume">Объем (м³)</label>
+                <input type="number" id="shelfVolume" step="0.01" min="0.01" required>
+            </div>
+            <button type="submit">Создать ящик</button>
+        </form>
+
+        <div class="entity-list" id="shelfList">
+            <!-- Ящики будут добавляться здесь динамически -->
+        </div>
+    </div>
+
+    <!-- Вкладка товаров -->
+    <div id="products" class="tab-content">
+        <h3>Управление товарами</h3>
+        <form id="productForm">
+            <div class="form-group">
+                <label for="productName">Название товара</label>
+                <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+                <label for="productArticle">Артикул</label>
+                <input type="text" id="productArticle" required>
+            </div>
+            <div class="form-group">
+                <label for="productCategory">Категория</label>
+                <input type="text" id="productCategory" required>
+            </div>
+            <div class="form-group">
+                <label for="productBrand">Бренд</label>
+                <input type="text" id="productBrand">
+            </div>
+            <div class="form-group">
+                <label for="productPrice">Цена</label>
+                <input type="number" id="productPrice" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="productDescription">Описание</label>
+                <textarea id="productDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="productDimensions">Габариты (см) и вес (кг)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="productLength" placeholder="Длина" step="0.1" min="0.1">
+                    <input type="number" id="productWidth" placeholder="Ширина" step="0.1" min="0.1">
+                    <input type="number" id="productHeight" placeholder="Высота" step="0.1" min="0.1">
+                    <input type="number" id="productWeight" placeholder="Вес" step="0.1" min="0.1">
+                </div>
+            </div>
+            <button type="submit">Создать товар</button>
+        </form>
+
+        <div class="entity-list" id="productList">
+            <!-- Товары будут добавляться здесь динамически -->
+        </div>
+    </div>
+
+    <!-- Вкладка назначений -->
+    <div id="assignments" class="tab-content">
+        <h3>Назначение товаров ящикам</h3>
+        <form id="assignmentForm">
+            <div class="form-group">
+                <label for="assignmentProduct">Товар</label>
+                <select id="assignmentProduct" required>
+                    <option value="">Выберите товар</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assignmentShelf">Ящик</label>
+                <select id="assignmentShelf" required>
+                    <option value="">Выберите ящик</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assignmentQuantity">Количество</label>
+                <input type="number" id="assignmentQuantity" min="1" required>
+            </div>
+            <button type="submit">Назначить товар</button>
+        </form>
+
+        <div class="entity-list" id="assignmentList">
+            <!-- Назначения будут добавляться здесь динамически -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Данные для демонстрации
+    let warehouses = [];
+    let zones = [];
+    let racks = [];
+    let shelves = [];
+    let products = [];
+    let assignments = [];
+
+    // Загрузка организации из localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        const orgData = localStorage.getItem('currentOrganization');
+        if (orgData) {
+            const org = JSON.parse(orgData);
+            document.getElementById('orgName').textContent = org.name;
+            document.getElementById('orgAddress').textContent = org.address;
+        }
+
+        // Загрузка тестовых данных для демонстрации
+        loadDemoData();
+        renderWarehouses();
+        renderZones();
+        renderRacks();
+        renderShelves();
+        renderProducts();
+        renderAssignments();
+        updateDropdowns();
+
+        // Настройка вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Скрыть все вкладки
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                // Убрать активный класс со всех вкладок
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+
+                // Показать выбранную вкладку
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                this.classList.add('active');
+            });
+        });
+
+        // Обработчики форм
+        document.getElementById('warehouseForm').addEventListener('submit', handleWarehouseSubmit);
+        document.getElementById('zoneForm').addEventListener('submit', handleZoneSubmit);
+        document.getElementById('rackForm').addEventListener('submit', handleRackSubmit);
+        document.getElementById('shelfForm').addEventListener('submit', handleShelfSubmit);
+        document.getElementById('productForm').addEventListener('submit', handleProductSubmit);
+        document.getElementById('assignmentForm').addEventListener('submit', handleAssignmentSubmit);
+    });
+
+    function loadDemoData() {
+        // Добавляем демонстрационные данные
+        if (warehouses.length === 0) {
+            warehouses.push({
+                id: 1,
+                name: "Основной склад",
+                address: "ул. Складская, 1",
+                capacity: 1000,
+                area: 500,
+                statuses: ["MAIN", "STORAGE"]
+            });
+        }
+
+        if (zones.length === 0) {
+            zones.push({
+                id: 1,
+                name: "Зона паллетного хранения",
+                description: "Для хранения паллетных грузов",
+                warehouseId: 1,
+                types: ["PALLET"]
+            });
+        }
+
+        if (racks.length === 0) {
+            racks.push({
+                id: 1,
+                code: "A-01",
+                name: "Стойка А-01",
+                levels: 5,
+                maxWeight: 1000,
+                height: 2.5,
+                width: 1.2,
+                depth: 0.8,
+                zoneId: 1,
+                types: ["PALLET_RACK"]
+            });
+        }
+
+        if (shelves.length === 0) {
+            shelves.push({
+                id: 1,
+                code: "A-01-01",
+                level: 1,
+                position: 1,
+                maxWeight: 200,
+                volume: 0.5,
+                rackId: 1,
+                statuses: ["EMPTY"]
+            });
+        }
+
+        if (products.length === 0) {
+            products.push({
+                id: 1,
+                name: "Автомобильное масло 5W-30",
+                article: "OIL-5W30-1L",
+                category: "Автомасла",
+                brand: "Mobil",
+                price: 850,
+                description: "Синтетическое моторное масло",
+                length: 10,
+                width: 10,
+                height: 20,
+                weight: 0.9
+            });
+        }
+    }
+
+    function updateDropdowns() {
+        // Обновление выпадающих списков складов
+        const warehouseSelect = document.getElementById('zoneWarehouse');
+        warehouseSelect.innerHTML = '<option value="">Выберите склад</option>';
+        warehouses.forEach(warehouse => {
+            const option = document.createElement('option');
+            option.value = warehouse.id;
+            option.textContent = warehouse.name;
+            warehouseSelect.appendChild(option);
+        });
+
+        // Обновление выпадающих списков зон
+        const zoneSelect = document.getElementById('rackZone');
+        zoneSelect.innerHTML = '<option value="">Выберите зону</option>';
+        zones.forEach(zone => {
+            const option = document.createElement('option');
+            option.value = zone.id;
+            option.textContent = zone.name;
+            zoneSelect.appendChild(option);
+        });
+
+        // Обновление выпадающих списков стоек
+        const rackSelect = document.getElementById('shelfRack');
+        rackSelect.innerHTML = '<option value="">Выберите стойку</option>';
+        racks.forEach(rack => {
+            const option = document.createElement('option');
+            option.value = rack.id;
+            option.textContent = `${rack.code} - ${rack.name}`;
+            rackSelect.appendChild(option);
+        });
+
+        // Обновление выпадающих списков товаров
+        const productSelect = document.getElementById('assignmentProduct');
+        productSelect.innerHTML = '<option value="">Выберите товар</option>';
+        products.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.id;
+            option.textContent = `${product.name} (${product.article})`;
+            productSelect.appendChild(option);
+        });
+
+        // Обновление выпадающих списков ящиков
+        const shelfSelect = document.getElementById('assignmentShelf');
+        shelfSelect.innerHTML = '<option value="">Выберите ящик</option>';
+        shelves.forEach(shelf => {
+            const option = document.createElement('option');
+            option.value = shelf.id;
+            option.textContent = `${shelf.code} (Уровень: ${shelf.level}, Позиция: ${shelf.position})`;
+            shelfSelect.appendChild(option);
+        });
+    }
+
+    function handleWarehouseSubmit(e) {
+        e.preventDefault();
+
+        const warehouse = {
+            id: warehouses.length > 0 ? Math.max(...warehouses.map(w => w.id)) + 1 : 1,
+            name: document.getElementById('warehouseName').value,
+            address: document.getElementById('warehouseAddress').value,
+            capacity: parseInt(document.getElementById('warehouseCapacity').value),
+            area: parseFloat(document.getElementById('warehouseArea').value),
+            statuses: Array.from(document.getElementById('warehouseStatuses').selectedOptions).map(o => o.value)
+        };
+
+        warehouses.push(warehouse);
+        renderWarehouses();
+        updateDropdowns();
+        document.getElementById('warehouseForm').reset();
+
+        // Переключение на вкладку складов для отображения нового склада
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="warehouses"]').classList.add('active');
+        document.getElementById('warehouses').classList.add('active');
+    }
+
+    function handleZoneSubmit(e) {
+        e.preventDefault();
+
+        const zone = {
+            id: zones.length > 0 ? Math.max(...zones.map(z => z.id)) + 1 : 1,
+            name: document.getElementById('zoneName').value,
+            description: document.getElementById('zoneDescription').value,
+            warehouseId: parseInt(document.getElementById('zoneWarehouse').value),
+            types: Array.from(document.getElementById('zoneTypes').selectedOptions).map(o => o.value)
+        };
+
+        zones.push(zone);
+        renderZones();
+        updateDropdowns();
+        document.getElementById('zoneForm').reset();
+
+        // Переключение на вкладку зон для отображения новой зоны
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="zones"]').classList.add('active');
+        document.getElementById('zones').classList.add('active');
+    }
+
+    function handleRackSubmit(e) {
+        e.preventDefault();
+
+        const rack = {
+            id: racks.length > 0 ? Math.max(...racks.map(r => r.id)) + 1 : 1,
+            code: document.getElementById('rackCode').value,
+            name: document.getElementById('rackName').value,
+            levels: parseInt(document.getElementById('rackLevels').value),
+            maxWeight: parseFloat(document.getElementById('rackMaxWeight').value),
+            height: parseFloat(document.getElementById('rackHeight').value),
+            width: parseFloat(document.getElementById('rackWidth').value),
+            depth: parseFloat(document.getElementById('rackDepth').value),
+            zoneId: parseInt(document.getElementById('rackZone').value),
+            types: Array.from(document.getElementById('rackTypes').selectedOptions).map(o => o.value)
+        };
+
+        racks.push(rack);
+        renderRacks();
+        updateDropdowns();
+        document.getElementById('rackForm').reset();
+
+        // Переключение на вкладку стоек для отображения новой стойки
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="racks"]').classList.add('active');
+        document.getElementById('racks').classList.add('active');
+    }
+
+    function handleShelfSubmit(e) {
+        e.preventDefault();
+
+        const shelf = {
+            id: shelves.length > 0 ? Math.max(...shelves.map(s => s.id)) + 1 : 1,
+            code: document.getElementById('shelfCode').value,
+            level: parseInt(document.getElementById('shelfLevel').value),
+            position: parseInt(document.getElementById('shelfPosition').value),
+            maxWeight: parseFloat(document.getElementById('shelfMaxWeight').value),
+            volume: parseFloat(document.getElementById('shelfVolume').value),
+            rackId: parseInt(document.getElementById('shelfRack').value),
+            statuses: ["EMPTY"]
+        };
+
+        shelves.push(shelf);
+        renderShelves();
+        updateDropdowns();
+        document.getElementById('shelfForm').reset();
+
+        // Переключение на вкладку ящиков для отображения нового ящика
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="shelves"]').classList.add('active');
+        document.getElementById('shelves').classList.add('active');
+    }
+
+    function handleProductSubmit(e) {
+        e.preventDefault();
+
+        const product = {
+            id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1,
+            name: document.getElementById('productName').value,
+            article: document.getElementById('productArticle').value,
+            category: document.getElementById('productCategory').value,
+            brand: document.getElementById('productBrand').value,
+            price: parseFloat(document.getElementById('productPrice').value),
+            description: document.getElementById('productDescription').value,
+            length: parseFloat(document.getElementById('productLength').value) || null,
+            width: parseFloat(document.getElementById('productWidth').value) || null,
+            height: parseFloat(document.getElementById('productHeight').value) || null,
+            weight: parseFloat(document.getElementById('productWeight').value) || null
+        };
+
+        products.push(product);
+        renderProducts();
+        updateDropdowns();
+        document.getElementById('productForm').reset();
+
+        // Переключение на вкладку товаров для отображения нового товара
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="products"]').classList.add('active');
+        document.getElementById('products').classList.add('active');
+    }
+
+    function handleAssignmentSubmit(e) {
+        e.preventDefault();
+
+        const productId = parseInt(document.getElementById('assignmentProduct').value);
+        const shelfId = parseInt(document.getElementById('assignmentShelf').value);
+        const quantity = parseInt(document.getElementById('assignmentQuantity').value);
+
+        // Находим товар и ящик
+        const product = products.find(p => p.id === productId);
+        const shelf = shelves.find(s => s.id === shelfId);
+
+        if (!product || !shelf) return;
+
+        // Проверяем, есть ли уже назначение для этого товара и ящика
+        const existingAssignment = assignments.find(a => a.productId === productId && a.shelfId === shelfId);
+
+        if (existingAssignment) {
+            existingAssignment.quantity += quantity;
+        } else {
+            const assignment = {
+                id: assignments.length > 0 ? Math.max(...assignments.map(a => a.id)) + 1 : 1,
+                productId: productId,
+                shelfId: shelfId,
+                quantity: quantity
+            };
+
+            assignments.push(assignment);
+        }
+
+        // Обновляем статус ящика
+        updateShelfStatus(shelfId);
+
+        renderAssignments();
+        document.getElementById('assignmentForm').reset();
+
+        // Переключение на вкладку назначений для отображения нового назначения
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector('[data-tab="assignments"]').classList.add('active');
+        document.getElementById('assignments').classList.add('active');
+    }
+
+    function updateShelfStatus(shelfId) {
+        const shelf = shelves.find(s => s.id === shelfId);
+        if (!shelf) return;
+
+        // Находим все назначения для этого ящика
+        const shelfAssignments = assignments.filter(a => a.shelfId === shelfId);
+        const totalQuantity = shelfAssignments.reduce((sum, a) => sum + a.quantity, 0);
+
+        // Обновляем статус ящика на основе заполненности
+        // Для демонстрации считаем, что ящик полный, если в нем больше 0 товаров
+        if (totalQuantity === 0) {
+            shelf.statuses = ["EMPTY"];
+        } else if (totalQuantity < 5) { // Примерное значение для демонстрации
+            shelf.statuses = ["PARTIAL"];
+        } else {
+            shelf.statuses = ["FULL"];
+        }
+
+        renderShelves();
+    }
+
+    function renderWarehouses() {
+        const container = document.getElementById('warehouseList');
+        container.innerHTML = '';
+
+        warehouses.forEach(warehouse => {
+            const warehouseElement = document.createElement('div');
+            warehouseElement.className = 'entity-item';
+
+            // Находим зоны этого склада
+            const warehouseZones = zones.filter(z => z.warehouseId === warehouse.id);
+
+            warehouseElement.innerHTML = `
+                    <div class="entity-info">
+                        <h4>${warehouse.name}</h4>
+                        <p>Адрес: ${warehouse.address}</p>
+                        <p>Вместимость: ${warehouse.capacity} паллет</p>
+                        <p>Площадь: ${warehouse.area} м²</p>
+                        <p>Статусы: ${warehouse.statuses.join(', ')}</p>
+
+                        ${warehouseZones.length > 0 ? `
+                            <div class="hierarchy">
+                                <div class="section-title">Зоны склада:</div>
+                                ${warehouseZones.map(zone => `
+                                    <div class="entity-item">
+                                        <div class="entity-info">
+                                            <h5>${zone.name}</h5>
+                                            <p>${zone.description}</p>
+                                            <p>Типы: ${zone.types.join(', ')}</p>
+                                        </div>
+                                        <div class="entity-actions">
+                                            <button class="btn-danger" onclick="deleteZone(${zone.id})">Удалить</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p>Нет зон</p>'}
+                    </div>
+                    <div class="entity-actions">
+                        <button class="btn-secondary" onclick="editWarehouse(${warehouse.id})">Редактировать</button>
+                        <button class="btn-danger" onclick="deleteWarehouse(${warehouse.id})">Удалить</button>
+                    </div>
+                `;
+
+            container.appendChild(warehouseElement);
+        });
+    }
+
+    function renderZones() {
+        const container = document.getElementById('zoneList');
+        container.innerHTML = '';
+
+        zones.forEach(zone => {
+            const zoneElement = document.createElement('div');
+            zoneElement.className = 'entity-item';
+
+            // Находим склад этой зоны
+            const warehouse = warehouses.find(w => w.id === zone.warehouseId);
+            // Находим стойки этой зоны
+            const zoneRacks = racks.filter(r => r.zoneId === zone.id);
+
+            zoneElement.innerHTML = `
+                    <div class="entity-info">
+                        <h4>${zone.name}</h4>
+                        <p>Склад: ${warehouse ? warehouse.name : 'Неизвестно'}</p>
+                        <p>${zone.description}</p>
+                        <p>Типы: ${zone.types.join(', ')}</p>
+
+                        ${zoneRacks.length > 0 ? `
+                            <div class="hierarchy">
+                                <div class="section-title">Стойки зоны:</div>
+                                ${zoneRacks.map(rack => `
+                                    <div class="entity-item">
+                                        <div class="entity-info">
+                                            <h5>${rack.code} - ${rack.name}</h5>
+                                            <p>Уровней: ${rack.levels}, Макс. вес: ${rack.maxWeight} кг</p>
+                                            <p>Габариты: ${rack.height}×${rack.width}×${rack.depth} м</p>
+                                            <p>Типы: ${rack.types.join(', ')}</p>
+                                        </div>
+                                        <div class="entity-actions">
+                                            <button class="btn-danger" onclick="deleteRack(${rack.id})">Удалить</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p>Нет стоек</p>'}
+                    </div>
+                    <div class="entity-actions">
+                        <button class="btn-secondary" onclick="editZone(${zone.id})">Редактировать</button>
+                        <button class="btn-danger" onclick="deleteZone(${zone.id})">Удалить</button>
+                    </div>
+                `;
+
+            container.appendChild(zoneElement);
+        });
+    }
+
+    function renderRacks() {
+        const container = document.getElementById('rackList');
+        container.innerHTML = '';
+
+        racks.forEach(rack => {
+            const rackElement = document.createElement('div');
+            rackElement.className = 'entity-item';
+
+            // Находим зону этой стойки
+            const zone = zones.find(z => z.id === rack.zoneId);
+            // Находим склад через зону
+            const warehouse = zone ? warehouses.find(w => w.id === zone.warehouseId) : null;
+            // Находим ящики этой стойки
+            const rackShelves = shelves.filter(s => s.rackId === rack.id);
+
+            rackElement.innerHTML = `
+                    <div class="entity-info">
+                        <h4>${rack.code} - ${rack.name}</h4>
+                        <p>Склад: ${warehouse ? warehouse.name : 'Неизвестно'}, Зона: ${zone ? zone.name : 'Неизвестно'}</p>
+                        <p>Уровней: ${rack.levels}, Макс. вес: ${rack.maxWeight} кг</p>
+                        <p>Габариты: ${rack.height}×${rack.width}×${rack.depth} м</p>
+                        <p>Типы: ${rack.types.join(', ')}</p>
+
+                        ${rackShelves.length > 0 ? `
+                            <div class="hierarchy">
+                                <div class="section-title">Ящики стойки:</div>
+                                ${rackShelves.map(shelf => {
+                const statusClass = shelf.statuses.includes('EMPTY') ? 'status-empty' :
+                    shelf.statuses.includes('PARTIAL') ? 'status-partial' : 'status-full';
+                const statusText = shelf.statuses.includes('EMPTY') ? 'Пустой' :
+                    shelf.statuses.includes('PARTIAL') ? 'Частично заполнен' : 'Полный';
+
+                return `
+                                    <div class="entity-item">
+                                        <div class="entity-info">
+                                            <h5>${shelf.code}</h5>
+                                            <p>Уровень: ${shelf.level}, Позиция: ${shelf.position}</p>
+                                            <p>Макс. вес: ${shelf.maxWeight} кг, Объем: ${shelf.volume} м³</p>
+                                            <p>Статус: <span class="status-indicator ${statusClass}"></span> ${statusText}</p>
+                                        </div>
+                                        <div class="entity-actions">
+                                            <button class="btn-danger" onclick="deleteShelf(${shelf.id})">Удалить</button>
+                                        </div>
+                                    </div>
+                                `}).join('')}
+                            </div>
+                        ` : '<p>Нет ящиков</p>'}
+                    </div>
+                    <div class="entity-actions">
+                        <button class="btn-secondary" onclick="editRack(${rack.id})">Редактировать</button>
+                        <button class="btn-danger" onclick="deleteRack(${rack.id})">Удалить</button>
+                    </div>
+                `;
+
+            container.appendChild(rackElement);
+        });
+    }
+
+    function renderShelves() {
+        const container = document.getElementById('shelfList');
+        container.innerHTML = '';
+
+        shelves.forEach(shelf => {
+            const shelfElement = document.createElement('div');
+            shelfElement.className = 'entity-item';
+
+            // Находим стойку этого ящика
+            const rack = racks.find(r => r.id === shelf.rackId);
+            // Находим зону через стойку
+            const zone = rack ? zones.find(z => z.id === rack.zoneId) : null;
+            // Находим склад через зону
+            const warehouse = zone ? warehouses.find(w => w.id === zone.warehouseId) : null;
+            // Находим назначения для этого ящика
+            const shelfAssignments = assignments.filter(a => a.shelfId === shelf.id);
+
+            const statusClass = shelf.statuses.includes('EMPTY') ? 'status-empty' :
+                shelf.statuses.includes('PARTIAL') ? 'status-partial' : 'status-full';
+            const statusText = shelf.statuses.includes('EMPTY') ? 'Пустой' :
+                shelf.statuses.includes('PARTIAL') ? 'Частично заполнен' : 'Полный';
+
+            shelfElement.innerHTML = `
+                    <div class="entity-info">
+                        <h4>${shelf.code}</h4>
+                        <p>Склад: ${warehouse ? warehouse.name : 'Неизвестно'},
+                           Зона: ${zone ? zone.name : 'Неизвестно'},
+                           Стойка: ${rack ? rack.code : 'Неизвестно'}</p>
+                        <p>Уровень: ${shelf.level}, Позиция: ${shelf.position}</p>
+                        <p>Макс. вес: ${shelf.maxWeight} кг, Объем: ${shelf.volume} м³</p>
+                        <p>Статус: <span class="status-indicator ${statusClass}"></span> ${statusText}</p>
+
+                        ${shelfAssignments.length > 0 ? `
+                            <div class="hierarchy">
+                                <div class="section-title">Товары в ящике:</div>
+                                ${shelfAssignments.map(assignment => {
+                const product = products.find(p => p.id === assignment.productId);
+                return product ? `
+                                        <div class="entity-item">
+                                            <div class="entity-info">
+                                                <h5>${product.name}</h5>
+                                                <p>Артикул: ${product.article}, Количество: ${assignment.quantity}</p>
+                                            </div>
+                                            <div class="entity-actions">
+                                                <button class="btn-danger" onclick="deleteAssignment(${assignment.id})">Удалить</button>
+                                            </div>
+                                        </div>
+                                    ` : '';
+            }).join('')}
+                            </div>
+                        ` : '<p>Нет товаров</p>'}
+                    </div>
+                    <div class="entity-actions">
+                        <button class="btn-secondary" onclick="editShelf(${shelf.id})">Редактировать</button>
+                        <button class="btn-danger" onclick="deleteShelf(${shelf.id})">Удалить</button>
+                    </div>
+                `;
+
+            container.appendChild(shelfElement);
+        });
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('productList');
+        container.innerHTML = '';
+
+        products.forEach(product => {
+            const productElement = document.createElement('div');
+            productElement.className = 'entity-item';
+
+            // Находим назначения для этого товара
+            const productAssignments = assignments.filter(a => a.productId === product.id);
+
+            productElement.innerHTML = `
+                    <div class="entity-info">
+                        <h4>${product.name}</h4>
+                        <p>Артикул: ${product.article}, Категория: ${product.category}</p>
+                        <p>Бренд: ${product.brand}, Цена: ${product.price} руб.</p>
+                        <p>${product.description}</p>
+                        ${product.length && product.width && product.height ?
+                `<p>Габариты: ${product.length}×${product.width}×${product.height} см, Вес: ${product.weight} кг</p>` : ''}
+
+                        ${productAssignments.length > 0 ? `
+                            <div class="hierarchy">
+                                <div class="section-title">Расположение товара:</div>
+                                ${productAssignments.map(assignment => {
+                const shelf = shelves.find(s => s.id === assignment.shelfId);
+                const rack = shelf ? racks.find(r => r.id === shelf.rackId) : null;
+                const zone = rack ? zones.find(z => z.id === rack.zoneId) : null;
+                const warehouse = zone ? warehouses.find(w => w.id === zone.warehouseId) : null;
+
+                return shelf && rack && zone && warehouse ? `
+                                        <div class="entity-item">
+                                            <div class="entity-info">
+                                                <h5>${shelf.code}</h5>
+                                                <p>Количество: ${assignment.quantity}</p>
+                                                <p>Склад: ${warehouse.name}, Зона: ${zone.name}, Стойка: ${rack.code}</p>
+                                            </div>
+                                            <div class="entity-actions">
+                                                <button class="btn-danger" onclick="deleteAssignment(${assignment.id})">Удалить</button>
+                                            </div>
+                                        </div>
+                                    ` : '';
+            }).join('')}
+                            </div>
+                        ` : '<p>Товар не размещен на складе</p>'}
+                    </div>
+                    <div class="entity-actions">
+                        <button class="btn-secondary" onclick="editProduct(${product.id})">Редактировать</button>
+                        <button class="btn-danger" onclick="deleteProduct(${product.id})">Удалить</button>
+                    </div>
+                `;
+
+            container.appendChild(productElement);
+        });
+    }
+
+    function renderAssignments() {
+        const container = document.getElementById('assignmentList');
+        container.innerHTML = '';
+
+        assignments.forEach(assignment => {
+            const assignmentElement = document.createElement('div');
+            assignmentElement.className = 'entity-item';
+
+            // Находим товар и ящик
+            const product = products.find(p => p.id === assignment.productId);
+            const shelf = shelves.find(s => s.id === assignment.shelfId);
+            const rack = shelf ? racks.find(r => r.id === shelf.rackId) : null;
+            const zone = rack ? zones.find(z => z.id === rack.zoneId) : null;
+            const warehouse = zone ? warehouses.find(w => w.id === zone.warehouseId) : null;
+
+            if (!product || !shelf) return;
+
+            assignmentElement.innerHTML = `
+                    <div class="entity-info">
+                        <h4>${product.name} → ${shelf.code}</h4>
+                        <p>Количество: ${assignment.quantity}</p>
+                        <p>Товар: ${product.name} (${product.article})</p>
+                        <p>Ящик: ${shelf.code} (Уровень: ${shelf.level}, Позиция: ${shelf.position})</p>
+                        <p>Расположение: Склад "${warehouse ? warehouse.name : 'Неизвестно'}",
+                           Зона "${zone ? zone.name : 'Неизвестно'}",
+                           Стойка "${rack ? rack.code : 'Неизвестно'}"</p>
+                    </div>
+                    <div class="entity-actions">
+                        <button class="btn-danger" onclick="deleteAssignment(${assignment.id})">Удалить</button>
+                    </div>
+                `;
+
+            container.appendChild(assignmentElement);
+        });
+    }
+
+    // Функции для удаления (для демонстрации)
+    function deleteWarehouse(id) {
+        if (confirm('Вы уверены, что хотите удалить этот склад? Все связанные зоны, стойки и ящики также будут удалены.')) {
+            // Удаляем связанные зоны
+            const zonesToDelete = zones.filter(z => z.warehouseId === id);
+            zonesToDelete.forEach(z => deleteZone(z.id));
+
+            warehouses = warehouses.filter(w => w.id !== id);
+            renderWarehouses();
+            updateDropdowns();
+        }
+    }
+
+    function deleteZone(id) {
+        if (confirm('Вы уверены, что хотите удалить эту зону? Все связанные стойки и ящики также будут удалены.')) {
+            // Удаляем связанные стойки
+            const racksToDelete = racks.filter(r => r.zoneId === id);
+            racksToDelete.forEach(r => deleteRack(r.id));
+
+            zones = zones.filter(z => z.id !== id);
+            renderZones();
+            updateDropdowns();
+        }
+    }
+
+    function deleteRack(id) {
+        if (confirm('Вы уверены, что хотите удалить эту стойку? Все связанные ящики также будут удалены.')) {
+            // Удаляем связанные ящики
+            const shelvesToDelete = shelves.filter(s => s.rackId === id);
+            shelvesToDelete.forEach(s => deleteShelf(s.id));
+
+            racks = racks.filter(r => r.id !== id);
+            renderRacks();
+            updateDropdowns();
+        }
+    }
+
+    function deleteShelf(id) {
+        if (confirm('Вы уверены, что хотите удалить этот ящик?')) {
+            // Удаляем связанные назначения
+            assignments = assignments.filter(a => a.shelfId !== id);
+
+            shelves = shelves.filter(s => s.id !== id);
+            renderShelves();
+            updateDropdowns();
+            renderAssignments();
+        }
+    }
+
+    function deleteProduct(id) {
+        if (confirm('Вы уверены, что хотите удалить этот товар?')) {
+            // Удаляем связанные назначения
+            assignments = assignments.filter(a => a.productId !== id);
+
+            products = products.filter(p => p.id !== id);
+            renderProducts();
+            updateDropdowns();
+            renderAssignments();
+        }
+    }
+
+    function deleteAssignment(id) {
+        const assignment = assignments.find(a => a.id === id);
+        if (!assignment) return;
+
+        assignments = assignments.filter(a => a.id !== id);
+        renderAssignments();
+        renderProducts();
+        renderShelves();
+    }
+
+    // Функции редактирования (заглушки для демонстрации)
+    function editWarehouse(id) {
+        alert('Функция редактирования склада в разработке');
+    }
+
+    function editZone(id) {
+        alert('Функция редактирования зоны в разработке');
+    }
+
+    function editRack(id) {
+        alert('Функция редактирования стойки в разработке');
+    }
+
+    function editShelf(id) {
+        alert('Функция редактирования ящика в разработке');
+    }
+
+    function editProduct(id) {
+        alert('Функция редактирования товара в разработке');
+    }
+</script>
+</body>
+</html>

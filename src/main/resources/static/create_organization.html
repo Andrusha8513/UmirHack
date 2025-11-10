@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание организации</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .organization-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .nav-button {
+            margin-top: 20px;
+            background: #28a745;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Создание организации</h1>
+
+    <form id="organizationForm">
+        <div class="form-group">
+            <label for="name">Название организации</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Адрес организации</label>
+            <textarea id="address" name="address" required></textarea>
+        </div>
+
+        <button type="submit">Создать организацию</button>
+    </form>
+
+    <div id="successMessage" class="success-message">
+        Организация успешно создана!
+    </div>
+
+    <div id="errorMessage" class="error-message">
+        Произошла ошибка при создании организации
+    </div>
+
+    <div id="organizationInfo" class="organization-info">
+        <h3>Информация об организации</h3>
+        <p><strong>ID:</strong> <span id="orgId"></span></p>
+        <p><strong>Название:</strong> <span id="orgName"></span></p>
+        <p><strong>Адрес:</strong> <span id="orgAddress"></span></p>
+        <p><strong>Владелец:</strong> <span id="orgOwner"></span></p>
+        <p><strong>Дата создания:</strong> <span id="orgCreatedAt"></span></p>
+
+        <button id="manageButton" class="nav-button">Управление складами</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById('organizationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('name').value,
+            address: document.getElementById('address').value
+        };
+
+        // Здесь должен быть реальный API вызов
+        // Для демонстрации используем имитацию
+        simulateCreateOrganization(formData);
+    });
+
+    function simulateCreateOrganization(data) {
+        // Имитация API запроса
+        setTimeout(() => {
+            // В реальном приложении здесь будет fetch или axios запрос
+            const success = Math.random() > 0.2; // 80% шанс успеха для демонстрации
+
+            if (success) {
+                // Генерируем тестовые данные
+                const organization = {
+                    id: Math.floor(Math.random() * 1000) + 1,
+                    name: data.name,
+                    address: data.address,
+                    owner: "Текущий пользователь",
+                    createdAt: new Date().toLocaleString()
+                };
+
+                // Сохраняем в localStorage для использования в других страницах
+                localStorage.setItem('currentOrganization', JSON.stringify(organization));
+
+                // Показываем успешное сообщение
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+
+                // Показываем информацию об организации
+                document.getElementById('orgId').textContent = organization.id;
+                document.getElementById('orgName').textContent = organization.name;
+                document.getElementById('orgAddress').textContent = organization.address;
+                document.getElementById('orgOwner').textContent = organization.owner;
+                document.getElementById('orgCreatedAt').textContent = organization.createdAt;
+                document.getElementById('organizationInfo').style.display = 'block';
+
+                // Очищаем форму
+                document.getElementById('organizationForm').reset();
+            } else {
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    document.getElementById('manageButton').addEventListener('click', function() {
+        // Переход на страницу управления складами
+        window.location.href = 'edit_organization.html';
+    });
+</script>
+</body>
+</html>
