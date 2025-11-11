@@ -23,15 +23,18 @@ public class StockController {
     private final ProductRepository productRepository;
     private final ShelfRepository shelfRepository;
     private final OrganizationRepository organizationRepository;
+    private final StockItemRepository stockItemRepository;
 
     public StockController(StockService stockService,
                            ProductRepository productRepository,
                            ShelfRepository shelfRepository,
-                           OrganizationRepository organizationRepository) {
+                           OrganizationRepository organizationRepository,
+                           StockItemRepository stockItemRepository) {
         this.stockService = stockService;
         this.productRepository = productRepository;
         this.shelfRepository = shelfRepository;
         this.organizationRepository = organizationRepository;
+        this.stockItemRepository = stockItemRepository;
     }
 
     // Добавить товар на полку збс
@@ -135,6 +138,27 @@ public class StockController {
 
             Integer totalQuantity = stockService.getTotalProductQuantity(product, organization);
             return ResponseEntity.ok(totalQuantity);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/product-locations-optimized")
+    public ResponseEntity<List<StockItemDto>> getProductLocationsOptimized(
+            @RequestParam Long productId,
+            @RequestParam Long organizationId) {
+        try {
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Товар не найден"));
+            Organization organization = organizationRepository.findById(organizationId)
+                    .orElseThrow(() -> new RuntimeException("Организация не найдена"));
+
+            // Используем оптимизированный метод с JOIN FETCH
+            List<StockItem> locations = stockItemRepository
+                    .findByProductAndOrganizationWithLocation(product, organization);
+
+            List<StockItemDto> locationDtos = stockService.toStockItemDtoList(locations);
+            return ResponseEntity.ok(locationDtos);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

@@ -2,6 +2,7 @@ package Chackaton.com.Warehouse;
 
 
 import Chackaton.com.Organization.Organization;
+import Chackaton.com.Organization.OrganizationRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,25 +15,36 @@ import java.util.List;
 public class WarehouseController {
 
     private final WarehouseService warehouseService;
+    private final OrganizationRepository organizationRepository;
 
-    public WarehouseController(WarehouseService warehouseService){
+    public WarehouseController(WarehouseService warehouseService,
+                               OrganizationRepository organizationRepository){
         this.warehouseService = warehouseService;
+        this.organizationRepository = organizationRepository;
     }
-    @PostMapping
-    public ResponseEntity<Warehouse> createWarehouse(@RequestBody Warehouse warehouse , Organization organization) {
-        Warehouse created = warehouseService.createWarehouse(warehouse , organization);
-        return ResponseEntity.ok(created);
-    }
+//    @PostMapping
+//    public ResponseEntity<Warehouse> createWarehouse(@RequestBody Warehouse warehouse , Organization organization) {
+//        Warehouse created = warehouseService.createWarehouse(warehouse , organization);
+//        return ResponseEntity.ok(created);
+//    }
 
     @PostMapping("/organization/{organizationId}")
-    public ResponseEntity<Warehouse> createWarehouse(
+    public ResponseEntity<?> createWarehouse(
             @RequestBody Warehouse warehouse,
             @PathVariable Long organizationId) {
-        Organization organization = new Organization();
-        organization.setId(organizationId);
-        Warehouse created = warehouseService.createWarehouse(warehouse, organization);
-        return ResponseEntity.ok(created);
+        try {
+            // Получаем реальную организацию из базы
+            Organization organization = organizationRepository.findById(organizationId)
+                    .orElseThrow(() -> new IllegalArgumentException("Организация не найдена"));
+
+            Warehouse created = warehouseService.createWarehouse(warehouse, organization);
+            return ResponseEntity.ok(created);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<Warehouse> updateWarehouse(@PathVariable Long id, @RequestBody Warehouse warehouse) {
         warehouse.setId(id);

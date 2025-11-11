@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Товарно-транспортная накладная - UMIRHACK WMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+            line-height: 1.2;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 2px solid #2c3e50;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .system-header {
+            background: #3498db;
+            color: white;
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .form-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .form-info {
+            font-size: 10px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .form-number {
+            text-align: right;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 4px;
+            text-align: center;
+            vertical-align: top;
+        }
+        th {
+            font-weight: bold;
+            background-color: #ecf0f1;
+        }
+        .data-field {
+            background: #f8f9fa;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin: 2px 0;
+            min-height: 18px;
+        }
+        .signature-block {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .signature {
+            width: 30%;
+            text-align: center;
+        }
+        .signature-line {
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+            padding-top: 25px;
+            min-height: 20px;
+        }
+        .signature-title {
+            font-size: 10px;
+            text-align: center;
+            color: #666;
+        }
+        .footer-note {
+            font-size: 9px;
+            margin-top: 5px;
+            color: #7f8c8d;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #d5edff;
+        }
+        .organization-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .org-block {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-IN_SORTING { background: #fff3cd; color: #856404; }
+        .status-AVAILABLE { background: #d1ecf1; color: #0c5460; }
+        .status-SHIPPED { background: #d4edda; color: #155724; }
+        .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .barcode {
+            font-family: 'Libre Barcode 39', monospace;
+            font-size: 24px;
+            text-align: center;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Системный заголовок -->
+    <div class="system-header">
+        UMIRHACK Warehouse Management System - Товарно-транспортная накладная
+    </div>
+
+    <div class="header">
+        <div class="form-title">ТОВАРНО-ТРАНСПОРТНАЯ НАКЛАДНАЯ</div>
+        <div class="form-info">Документ сгенерирован автоматически системой управления складом</div>
+    </div>
+
+    <div class="form-number">
+        Накладная №: <span class="data-field" id="documentNumber">TTN-{{documentId}}</span>
+        Дата: <span class="data-field" id="documentDate">{{currentDate}}</span>
+    </div>
+
+    <!-- Информация об организациях -->
+    <div class="organization-info">
+        <div class="org-block">
+            <strong>👤 Грузоотправитель</strong>
+            <div class="data-field" id="shipper">
+                {{organizationFrom.name}}<br>
+                Адрес: {{organizationFrom.address}}<br>
+                Тел: {{organizationFrom.phone}}
+            </div>
+            <div>
+                Код по ОКПО: <span class="data-field">{{organizationFrom.okpo}}</span>
+            </div>
+        </div>
+
+        <div class="org-block">
+            <strong>🏢 Грузополучатель</strong>
+            <div class="data-field" id="consignee">
+                {{organizationTo.name}}<br>
+                Адрес: {{organizationTo.address}}<br>
+                Тел: {{organizationTo.phone}}
+            </div>
+            <div>
+                Код по ОКПО: <span class="data-field">{{organizationTo.okpo}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о складе -->
+    <div class="section">
+        <div class="section-title">📦 СКЛАДСКАЯ ИНФОРМАЦИЯ</div>
+        <table>
+            <tr>
+                <td><strong>Склад отгрузки:</strong></td>
+                <td class="data-field">{{warehouse.name}}</td>
+                <td><strong>Зона хранения:</strong></td>
+                <td class="data-field">{{storageZone.name}}</td>
+                <td><strong>Статус отгрузки:</strong></td>
+                <td>
+                    <span class="data-field status-badge status-{{shipmentStatus}}">
+                        {{shipmentStatus}}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Адрес склада:</strong></td>
+                <td class="data-field" colspan="3">{{warehouse.address}}</td>
+                <td><strong>Дата отгрузки:</strong></td>
+                <td class="data-field">{{shipmentDate}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Товарный раздел -->
+    <div class="section">
+        <div class="section-title">📋 ТОВАРНЫЙ РАЗДЕЛ</div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Артикул</th>
+                <th>Изображение</th>
+                <th>Наименование товара</th>
+                <th>Производитель</th>
+                <th>Кол-во</th>
+                <th>Ед. изм.</th>
+                <th>Цена, руб.</th>
+                <th>Сумма, руб.</th>
+                <th>Вес, кг</th>
+                <th>Объем, м³</th>
+                <th>Место хранения</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody id="productsTable">
+            <!-- Динамически заполняемые строки с товарами -->
+            <tr v-for="product in products" :key="product.id">
+                <td class="data-field">{{product.articleNumber}}</td>
+                <td>
+                    <img v-if="product.image" :src="product.image" class="product-image" alt="Изображение товара">
+                    <span v-else>Нет фото</span>
+                </td>
+                <td class="data-field">
+                    <strong>{{product.name}}</strong><br>
+                    <small>{{product.description}}</small>
+                </td>
+                <td class="data-field">{{product.manufacturer}}</td>
+                <td class="data-field">{{product.quantity}}</td>
+                <td class="data-field">шт</td>
+                <td class="data-field">{{product.price}}</td>
+                <td class="data-field">{{product.total}}</td>
+                <td class="data-field">{{product.weight}}</td>
+                <td class="data-field">{{product.volume}}</td>
+                <td class="data-field">
+                    {{product.location.warehouse}}<br>
+                    {{product.location.zone}}<br>
+                    {{product.location.rack}}<br>
+                    {{product.location.shelf}}
+                </td>
+                <td>
+                    <span class="status-badge status-{{product.status}}">
+                        {{product.status}}
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="total-row">
+                <td colspan="4"><strong>ИТОГО:</strong></td>
+                <td class="data-field">{{totalQuantity}}</td>
+                <td>-</td>
+                <td>-</td>
+                <td class="data-field">{{totalAmount}}</td>
+                <td class="data-field">{{totalWeight}}</td>
+                <td class="data-field">{{totalVolume}}</td>
+                <td colspan="2">-</td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer-note">
+            Товарная накладная содержит {{totalItems}} наименований на {{totalPages}} листах
+        </div>
+    </div>
+
+    <!-- Итоговая информация -->
+    <div class="section">
+        <div class="section-title">💰 ФИНАНСОВАЯ ИНФОРМАЦИЯ</div>
+        <table>
+            <tr>
+                <td>Общее количество мест:</td>
+                <td class="data-field">{{totalPositions}}</td>
+                <td>Общая масса (брутто):</td>
+                <td class="data-field">{{totalGrossWeight}} кг</td>
+                <td>Общий объем:</td>
+                <td class="data-field">{{totalVolume}} м³</td>
+            </tr>
+            <tr>
+                <td>Количество товаров:</td>
+                <td class="data-field">{{totalItems}} шт</td>
+                <td>Общая сумма:</td>
+                <td class="data-field" colspan="3">{{totalAmount}} руб.</td>
+            </tr>
+        </table>
+
+        <!-- Штрих-код для сканирования -->
+        <div class="barcode">*{{documentNumber}}*</div>
+        <div style="text-align: center; font-size: 9px;">ID документа для сканирования</div>
+    </div>
+
+    <!-- Подписи -->
+    <div class="signature-block">
+        <div class="signature">
+            <div class="signature-title">Отгрузку разрешил</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(должность)</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(подпись)</div>
+            <div class="data-field">{{approvedBy.position}} - {{approvedBy.name}}</div>
+        </div>
+
+        <div class="signature">
+            <div class="signature-title">Кладовщик</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(подпись)</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(расшифровка подписи)</div>
+            <div class="data-field">{{storekeeper.name}}</div>
+        </div>
+
+        <div class="signature">
+            <div class="signature-title">Отгрузку произвел</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(должность)</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(подпись)</div>
+            <div class="data-field">{{shippedBy.position}} - {{shippedBy.name}}</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+        <strong>М.П.</strong> «{{documentDate}}» г.
+    </div>
+
+    <!-- Получение груза -->
+    <div class="signature-block" style="margin-top: 20px;">
+        <div class="signature">
+            <div class="signature-title">Груз к перевозке принял</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(должность перевозчика)</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(подпись)</div>
+        </div>
+
+        <div class="signature">
+            <div class="footer-note">(При личном приеме товара по количеству и ассортименту)</div>
+            <div class="signature-title">Груз получил грузополучатель</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(должность)</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(подпись)</div>
+            <div class="data-field">{{receivedBy.position}} - {{receivedBy.name}}</div>
+        </div>
+    </div>
+
+    <!-- Системная информация -->
+    <div style="text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee; font-size: 9px; color: #95a5a6;">
+        Документ сгенерирован автоматически в системе UMIRHACK WMS<br>
+        Дата генерации: {{generationDate}} • ID операции: {{operationId}} • Версия: {{systemVersion}}
+    </div>
+</div>
+
+<script>
+    // Пример данных для заполнения (в реальной системе будут приходить с бэкенда)
+    const documentData = {
+        documentId: 'TTN-2024-001',
+        currentDate: '15.01.2024',
+        organizationFrom: {
+            name: 'ООО "UMIRHACK Склад"',
+            address: 'г. Москва, ул. Складская, д. 1',
+            phone: '+7 (495) 123-45-67',
+            okpo: '12345678'
+        },
+        organizationTo: {
+            name: 'ООО "АвтоДеталь Трейд"',
+            address: 'г. Москва, ул. Торговая, д. 15',
+            phone: '+7 (495) 765-43-21',
+            okpo: '87654321'
+        },
+        warehouse: {
+            name: 'Центральный склад UMIRHACK',
+            address: 'г. Москва, ул. Складская, д. 1, стр. 1'
+        },
+        storageZone: 'Зона А - Автозапчасти',
+        shipmentStatus: 'SHIPPED',
+        shipmentDate: '15.01.2024',
+        products: [
+            {
+                id: 1,
+                articleNumber: 'ART-001',
+                name: 'Масляный фильтр двигателя',
+                description: 'Фильтр масляный для двигателей VW/Audi',
+                manufacturer: 'MANN Filter',
+                quantity: 10,
+                price: 1250.50,
+                total: 12505.00,
+                weight: 0.8,
+                volume: 0.002,
+                location: {
+                    warehouse: 'Центральный',
+                    zone: 'Зона А',
+                    rack: 'A-01',
+                    shelf: 'A-01-01-01'
+                },
+                status: 'SHIPPED',
+                image: '/api/images/1'
+            },
+            {
+                id: 2,
+                articleNumber: 'ART-002',
+                name: 'Воздушный фильтр салона',
+                description: 'Фильтр воздушный салонный для BMW',
+                manufacturer: 'Bosch',
+                quantity: 5,
+                price: 890.00,
+                total: 4450.00,
+                weight: 0.3,
+                volume: 0.001,
+                location: {
+                    warehouse: 'Центральный',
+                    zone: 'Зона А',
+                    rack: 'A-01',
+                    shelf: 'A-01-01-02'
+                },
+                status: 'SHIPPED',
+                image: '/api/images/2'
+            }
+        ],
+        totals: {
+            quantity: 15,
+            amount: 16955.00,
+            weight: 9.5,
+            volume: 0.025,
+            items: 2,
+            positions: 15,
+            grossWeight: 10.2
+        },
+        personnel: {
+            approvedBy: { position: 'Начальник склада', name: 'Иванов А.С.' },
+            storekeeper: { name: 'Петрова М.И.' },
+            shippedBy: { position: 'Кладовщик', name: 'Сидоров В.П.' },
+            receivedBy: { position: 'Менеджер по закупкам', name: 'Козлов Д.А.' }
+        },
+        systemInfo: {
+            generationDate: '15.01.2024 14:30:25',
+            operationId: 'OP-2024-001-456',
+            systemVersion: 'WMS 2.1.0'
+        }
+    };
+</script>
+</body>
+</html>

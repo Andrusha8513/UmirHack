@@ -153,4 +153,6 @@ public class StockItem {
     public void setStatus(StockItemStatus status) {
         this.status = status;
     }
+
+
 }

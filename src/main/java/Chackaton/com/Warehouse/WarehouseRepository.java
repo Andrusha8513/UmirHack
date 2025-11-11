@@ -13,4 +13,6 @@ public interface WarehouseRepository extends JpaRepository<Warehouse , Long> {
     int countByOrganization(Organization organization);
 
     List<Warehouse> findByOrganization(Organization organization);
+
+
 }

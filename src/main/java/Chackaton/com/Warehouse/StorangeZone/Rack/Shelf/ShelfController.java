@@ -1,5 +1,6 @@
 package Chackaton.com.Warehouse.StorangeZone.Rack.Shelf;
 
+import Chackaton.com.DTO.ShelfCreateRequest;
 import Chackaton.com.Warehouse.StorangeZone.Rack.Rack;
 import Chackaton.com.Warehouse.StorangeZone.Rack.RackService;
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,21 @@ public class ShelfController {
 
     @PutMapping("/{shelfId}")
     public ResponseEntity<?> updateShelf(@PathVariable Long shelfId, @RequestBody Shelf shelfDetails) {
-        // Нужен метод updateShelf в ShelfService
         Shelf updatedShelf = shelfService.updateShelf(shelfId, shelfDetails);
         return ResponseEntity.ok(updatedShelf);
+    }
+
+    @PostMapping("/bulk/{rackId}")
+    public ResponseEntity<?> createShelvesInBulk(
+            @PathVariable Long rackId,
+            @RequestBody List<ShelfCreateRequest> shelfRequests) {
+        try {
+            Rack rack = rackService.findById(rackId);
+            List<Shelf> createdShelves = shelfService.createShelvesInBulk(rack, shelfRequests);
+
+            return ResponseEntity.ok(createdShelves);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -54,7 +54,7 @@ public class StorageZoneService {
                 .orElseThrow(() -> new IllegalArgumentException("Не найдена зона с таким " + id));
     }
 //вроде збс
-    public List<StorageZone> findByWarehouse(Long warehouseId) {
-        return storageZoneRepository.findAll();
-    }
+public List<StorageZone> findByWarehouse(Long warehouseId) {
+    return storageZoneRepository.findByWarehouseId(warehouseId);
+}
 }
