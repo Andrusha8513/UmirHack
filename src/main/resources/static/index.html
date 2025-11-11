@@ -3,108 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система управления складом</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>WMS - Hackathon Edition</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        .dashboard-card {
-            transition: transform 0.2s;
-            height: 100%;
+        .compact-form {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px;
         }
-        .dashboard-card:hover {
-            transform: translateY(-5px);
+        .compact-form input, .compact-form select, .compact-form textarea {
+            padding: 0.4rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
         }
-        .navbar-brand {
-            font-weight: bold;
+        .form-section {
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .form-section h4 {
+            margin: 0 0 0.3rem 0;
+            font-size: 0.9rem;
+            color: #666;
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="/">🏭 Складская система</a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link text-white" href="/organizations.html">Организации</a>
-            <a class="nav-link text-white" href="/warehouse.html">Склады</a>
-            <a class="nav-link text-white" href="/storage-zones.html">Зоны хранения</a>
-            <a class="nav-link text-white" href="/racks.html">Стеллажи</a>
-            <a class="nav-link text-white" href="/shelves.html">Полки</a>
-            <a class="nav-link text-white" href="/stock.html">Запасы</a>
-        </div>
+
+<nav>
+    <div class="nav-brand">WMS</div>
+    <div class="nav-links">
+        <a href="#" id="nav-org">Организации</a>
+        <a href="#" id="nav-warehouse">Склады</a>
+        <a href="#" id="nav-products">Продукты</a>
+        <a href="#" id="nav-docs">Документы (ТТН)</a>
+    </div>
+    <div id="auth-status">
+        <button id="logout-button" style="display:none;">Выйти</button>
     </div>
 </nav>
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4">Добро пожаловать в систему управления складом</h1>
-            <p class="lead">Управляйте вашими организациями, складами и зонами хранения в одном месте</p>
+<main id="app-container">
+
+    <div id="auth-page" class="page active">
+        <div class="card">
+            <h2>Вход в систему</h2>
+            <p>Для демо, просто нажмите "Войти". Мы симулируем получение токена.</p>
+            <input type="text" id="fake-email" value="admin@hackathon.com" placeholder="Email">
+            <input type="password" id="fake-password" value="12345678" placeholder="Пароль">
+            <button id="login-button">Войти</button>
         </div>
     </div>
 
-    <div class="row mt-5">
-        <div class="col-md-3 mb-4">
-            <div class="card dashboard-card shadow">
-                <div class="card-body text-center">
-                    <h5 class="card-title">🏢 Организации</h5>
-                    <p class="card-text">Управление организациями и их данными</p>
-                    <a href="/organizations.html" class="btn btn-primary">Перейти</a>
-                </div>
+    <div id="org-page" class="page">
+        <h2>Управление Организациями</h2>
+        <div class="content-row">
+            <div class="card">
+                <h3>Создать Организацию</h3>
+                <form id="org-create-form">
+                    <input type="text" id="org-name" placeholder="Название организации" required>
+                    <input type="text" id="org-address" placeholder="Юридический адрес">
+                    <button type="submit">Создать</button>
+                </form>
             </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card dashboard-card shadow">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📦 Склады</h5>
-                    <p class="card-text">Создание и управление складскими помещениями</p>
-                    <a href="/warehouse.html" class="btn btn-primary">Перейти</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card dashboard-card shadow">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📍 Зоны хранения</h5>
-                    <p class="card-text">Настройка зон и типов хранения</p>
-                    <a href="/storage-zones.html" class="btn btn-primary">Перейти</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card dashboard-card shadow">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📚 Стеллажи</h5>
-                    <p class="card-text">Управление стеллажами и их характеристиками</p>
-                    <a href="/racks.html" class="btn btn-primary">Перейти</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card dashboard-card shadow">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📦 Полки</h5>
-                    <p class="card-text">Настройка полок и их статусов</p>
-                    <a href="/shelves.html" class="btn btn-primary">Перейти</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card dashboard-card shadow">
-                <div class="card-body text-center">
-                    <h5 class="card-title">📊 Запасы</h5>
-                    <p class="card-text">Управление товарными запасами и операциями</p>
-                    <a href="/stock.html" class="btn btn-primary">Перейти</a>
+            <div class="card">
+                <h3>Ваши Организации</h3>
+                <div id="org-list">
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<footer class="bg-light text-center py-3 mt-5">
-    <div class="container">
-        <p class="mb-0">Система управления складом &copy; 2024</p>
+    <div id="warehouse-page" class="page">
+        <h2>Менеджер Склада (Организация: <span id="current-org-name">...</span>)</h2>
+        <p>Кликайте на элементы, чтобы загрузить дочерние.</p>
+
+        <div class="drill-down-container">
+            <!-- Склады -->
+            <div class="column" id="warehouses-col">
+                <h3>Склады</h3>
+                <div id="warehouse-list" class="list-box"></div>
+                <form id="warehouse-create-form" class="compact-form">
+                    <input type="text" id="warehouse-name" placeholder="Название склада" required>
+                    <input type="text" id="warehouse-address" placeholder="Адрес склада">
+                    <div class="form-section">
+                        <h4>Характеристики</h4>
+                        <input type="number" id="warehouse-max-volume" placeholder="Макс. объем (м³)" step="0.1">
+                    </div>
+                    <button type="submit">+ Создать склад</button>
+                </form>
+            </div>
+
+            <!-- Зоны хранения -->
+            <div class="column" id="zones-col">
+                <h3>Зоны</h3>
+                <div id="zone-list" class="list-box"></div>
+                <form id="zone-create-form" class="compact-form">
+                    <input type="text" id="zone-name" placeholder="Название зоны" required>
+                    <textarea id="zone-description" placeholder="Описание зоны" rows="2"></textarea>
+                    <div class="form-section">
+                        <h4>Типы хранения</h4>
+                        <select id="zone-storage-types" multiple style="height: 80px; font-size: 0.8rem;">
+                            <option value="BULK">Навалочное</option>
+                            <option value="PALLET">Паллетное</option>
+                            <option value="SHELF">Стеллажное</option>
+                            <option value="REFRIGERATED">Холодильник</option>
+                            <option value="FREEZER">Морозильник</option>
+                            <option value="HAZARDOUS">Опасные грузы</option>
+                            <option value="VALUABLE">Ценные товары</option>
+                        </select>
+                        <small>Ctrl+click для выбора нескольких</small>
+                    </div>
+                    <button type="submit">+ Создать зону</button>
+                </form>
+            </div>
+
+            <!-- Стеллажи -->
+            <div class="column" id="racks-col">
+                <h3>Стеллажи</h3>
+                <div id="rack-list" class="list-box"></div>
+                <form id="rack-create-form" class="compact-form">
+                    <input type="text" id="rack-code" placeholder="Код стеллажа (A-01)" required>
+                    <input type="text" id="rack-name" placeholder="Название стеллажа">
+
+                    <div class="form-section">
+                        <h4>Расположение</h4>
+                        <input type="number" id="rack-row-number" placeholder="Номер ряда">
+                        <input type="number" id="rack-section-number" placeholder="Номер секции">
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Характеристики</h4>
+                        <input type="number" id="rack-total-levels" placeholder="Кол-во уровней">
+                        <input type="number" id="rack-max-weight" placeholder="Макс. нагрузка (кг)" step="0.1">
+                        <input type="number" id="rack-height" placeholder="Высота (м)" step="0.01">
+                        <input type="number" id="rack-width" placeholder="Ширина (м)" step="0.01">
+                        <input type="number" id="rack-depth" placeholder="Глубина (м)" step="0.01">
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Типы стеллажа</h4>
+                        <select id="rack-types" multiple style="height: 60px; font-size: 0.8rem;">
+                            <option value="PALLET_RACK">Паллетные</option>
+                            <option value="SHELF_RACK">Полочные</option>
+                            <option value="CANTILEVER">Консольные</option>
+                            <option value="DRIVE_IN">Въездные</option>
+                            <option value="MOBILE">Мобильные</option>
+                            <option value="MEZZANINE">Мезонины</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">+ Создать стеллаж</button>
+                </form>
+            </div>
+
+            <!-- Полки -->
+            <div class="column" id="shelves-col">
+                <h3>Полки</h3>
+                <div id="shelf-list" class="list-box"></div>
+                <form id="shelf-create-form" class="compact-form">
+                    <input type="text" id="shelf-code" placeholder="Код полки (A-01-01)" required>
+
+                    <div class="form-section">
+                        <h4>Расположение</h4>
+                        <input type="number" id="shelf-level" placeholder="Уровень">
+                        <input type="number" id="shelf-position" placeholder="Позиция">
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Характеристики</h4>
+                        <input type="number" id="shelf-max-weight" placeholder="Макс. нагрузка (кг)" step="0.1">
+                        <input type="number" id="shelf-volume" placeholder="Объем (м³)" step="0.01">
+                    </div>
+
+                    <div class="form-section">
+                        <h4>Статусы</h4>
+                        <select id="shelf-statuses" multiple style="height: 60px; font-size: 0.8rem;">
+                            <option value="EMPTY">Пустая</option>
+                            <option value="PARTIAL">Частично заполнена</option>
+                            <option value="FULL">Полностью заполнена</option>
+                            <option value="BLOCKED">Заблокирована</option>
+                            <option value="RESERVED">Зарезервирована</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">+ Создать полку</button>
+                </form>
+            </div>
+        </div>
     </div>
-</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Остальные страницы (products-page, docs-page) остаются без изменений -->
+    <div id="products-page" class="page">
+        <h2>Управление Продуктами</h2>
+        <div class="content-row">
+            <div class="card">
+                <h3>1. Создать Продукт (Номенклатура)</h3>
+                <form id="product-create-form">
+                    <input type="text" id="product-name" placeholder="Название продукта" required>
+                    <input type="text" id="product-article" placeholder="Артикул" required>
+                    <input type="number" id="product-price" placeholder="Цена" step="0.01">
+                    <div class="form-section">
+                        <h4>Дополнительная информация</h4>
+                        <input type="text" id="product-brand" placeholder="Бренд">
+                        <input type="text" id="product-category" placeholder="Категория">
+                        <input type="text" id="product-manufacturer" placeholder="Производитель">
+                        <textarea id="product-description" placeholder="Описание" rows="2"></textarea>
+                    </div>
+                    <div class="form-section">
+                        <h4>Габариты и вес</h4>
+                        <input type="number" id="product-weight" placeholder="Вес (кг)" step="0.01">
+                        <input type="number" id="product-length" placeholder="Длина (см)" step="0.1">
+                        <input type="number" id="product-width" placeholder="Ширина (см)" step="0.1">
+                        <input type="number" id="product-height" placeholder="Высота (см)" step="0.1">
+                        <input type="number" id="product-volume" placeholder="Объем (м³)" step="0.001">
+                    </div>
+                    <button type="submit">Создать продукт</button>
+                </form>
+            </div>
+            <div class="card">
+                <h3>2. Разместить Продукт на Полку (StockItem)</h3>
+                <form id="stock-add-form">
+                    <select id="stock-product-select" required>
+                        <option value="">-- Выберите продукт --</option>
+                    </select>
+                    <input type="number" id="stock-shelf-id" placeholder="ID Полки (из менеджера склада)" required>
+                    <input type="number" id="stock-quantity" placeholder="Количество" required>
+                    <button type="submit">Разместить на полке</button>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Все Продукты</h3>
+            <div id="product-list" class="list-box"></div>
+        </div>
+    </div>
+
+    <div id="docs-page" class="page">
+        <h2>Документы (Организация: <span id="doc-org-name">...</span>)</h2>
+        <div class="card">
+            <h3>Создать ТТН (Отгрузка)</h3>
+            <form id="doc-create-form">
+                <input type="text" id="doc-shipper" placeholder="Грузоотправитель">
+                <input type="text" id="doc-consignee" placeholder="Грузополучатель">
+                <input type="hidden" id="doc-id">
+
+                <h4>Товарный раздел</h4>
+                <table id="doc-items-table">
+                    <thead>
+                    <tr>
+                        <th>ID Продукта</th>
+                        <th>ID Полки (Откуда)</th>
+                        <th>Кол-во</th>
+                        <th>Цена</th>
+                        <th>Удалить</th>
+                    </tr>
+                    </thead>
+                    <tbody id="doc-items-tbody">
+                    </tbody>
+                </table>
+                <button type="button" id="doc-add-item">Добавить товар</button>
+                <hr>
+                <button type="submit" id="doc-save-draft">Сохранить черновик</button>
+                <button type="button" id="doc-complete">Провести документ (Синхронизация)</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<template id="doc-item-template">
+    <tr>
+        <td><input type="number" class="item-product-id" required></td>
+        <td><input type="number" class="item-shelf-id" required></td>
+        <td><input type="number" class="item-quantity" required></td>
+        <td><input type="number" class="item-price" step="0.01"></td>
+        <td><button type="button" class="remove-item-btn">X</button></td>
+    </tr>
+</template>
+
+<script src="app.js"></script>
 </body>
 </html>

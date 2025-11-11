@@ -1,6 +1,7 @@
 package Chackaton.com.Organization;
 
 import Chackaton.com.Users.Users;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.security.core.userdetails.User;
 
@@ -21,6 +22,7 @@ public class Organization {
 //    @OneToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
 //    private Users owner;
 @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+@JsonIgnore
 private Set<OrganizationMembership> members = new HashSet<>();
     private LocalDateTime createdAt;
 

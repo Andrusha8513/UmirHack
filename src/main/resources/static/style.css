@@ -1,0 +1,177 @@
+/* Глобальные переменные для быстрой смены темы */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --border-color: #dee2e6;
+    --danger-color: #dc3545;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Навигация */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-bg);
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+.nav-links a {
+    display: none; /* Прячем до логина */
+    padding: 1rem;
+    text-decoration: none;
+    color: var(--secondary-color);
+}
+.nav-links a:hover {
+    color: var(--primary-color);
+}
+
+/* Основной контейнер */
+main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Скрытие/показ страниц */
+.page {
+    display: none;
+}
+.page.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Карточки */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Сетки */
+.content-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Менеджер склада (Drill-down) */
+.drill-down-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.column h3 {
+    margin-top: 0;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+.list-box {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+.list-box div {
+    padding: 0.5rem;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+.list-box div:hover {
+    background-color: #f0f0f0;
+}
+.list-box div.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+}
+
+/* Формы */
+form { display: flex; flex-direction: column; gap: 0.75rem; }
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box; /* Важно */
+}
+button {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+button:hover {
+    background-color: #0056b3;
+}
+form button {
+    width: 100%;
+}
+.drill-down-container form {
+    flex-direction: row;
+}
+
+/* Таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    text-align: left;
+}
+th { background-color: var(--bg-color); }
+td input { width: 90%; }
+.remove-item-btn {
+    background-color: var(--danger-color);
+    padding: 0.25rem 0.5rem;
+}
+
+/* Медиа-запросы для мобильных */
+@media (max-width: 768px) {
+    .content-row, .drill-down-container {
+        grid-template-columns: 1fr;
+    }
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

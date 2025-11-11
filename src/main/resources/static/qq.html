@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Документ ТТН</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+        input[type="text"], input[type="number"] { width: 95%; padding: 5px; }
+        .controls { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Товарно-транспортная накладная (ТТН)</h2>
+
+    <div id="document-header">
+        <input type="text" id="doc-shipper" placeholder="Грузоотправитель">
+        <input type="text" id="doc-consignee" placeholder="Грузополучатель">
+        <input type="hidden" id="doc-id" value="">
+        <input type="hidden" id="doc-warehouse-id" value="1"> <input type="hidden" id="doc-org-id" value="1"> </div>
+
+    <h3>Товарный раздел</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID Продукта</th>
+            <th>ID Полки</th>
+            <th>Кол-во (Ожид.)</th>
+            <th>Цена</th>
+            <th>Действие</th>
+        </tr>
+        </thead>
+        <tbody id="product-table-body">
+        </tbody>
+    </table>
+    <button type="button" onclick="addProductRow()">Добавить товар</button>
+
+    <div class="controls">
+        <button type="button" onclick="saveDocument(false)">Сохранить черновик</button>
+        <button type="button" onclick="saveDocument(true)">Провести документ</button>
+    </div>
+</div>
+
+<template id="product-row-template">
+    <tr>
+        <td><input type="number" class="product-id" placeholder="ID Товара"></td>
+        <td><input type="number" class="shelf-id" placeholder="ID Полки"></td>
+        <td><input type="number" class="quantity-expected" placeholder="Кол-во"></td>
+        <td><input type="number" class="price" placeholder="Цена"></td>
+        <td><button type="button" onclick="removeRow(this)">Удалить</button></td>
+    </tr>
+</template>
+
+<script>
+    // --- УПРАВЛЕНИЕ СТРОКАМИ ---
+
+    function addProductRow() {
+        const template = document.getElementById('product-row-template');
+        const clone = template.content.cloneNode(true);
+        document.getElementById('product-table-body').appendChild(clone);
+    }
+
+    function removeRow(button) {
+        button.closest('tr').remove();
+    }
+
+    // --- СВЯЗЬ С БЭКЕНДОМ (Тут начинается магия) ---
+
+    // (Функция для загрузки существующего документа)
+    async function loadDocument(documentId) {
+        // 1. Делаем GET-запрос к твоему бэкенду
+        const response = await fetch(`/api/documents/${documentId}`);
+        const doc = await response.json();
+
+        // 2. Заполняем "шапку"
+        document.getElementById('doc-id').value = doc.id;
+        document.getElementById('doc-shipper').value = doc.shipper;
+        document.getElementById('doc-consignee').value = doc.consignee;
+        //... и т.д.
+
+        // 3. Заполняем "строки"
+        const tableBody = document.getElementById('product-table-body');
+        tableBody.innerHTML = ''; // Очищаем
+        for (const item of doc.items) {
+            addProductRow(); // Создаем пустую строку
+            const newRow = tableBody.lastElementChild; // Берем ее
+            // Заполняем данными
+            newRow.querySelector('.product-id').value = item.product.id;
+            newRow.querySelector('.shelf-id').value = item.shelf.id;
+            newRow.querySelector('.quantity-expected').value = item.quantityExpected;
+            newRow.querySelector('.price').value = item.price;
+        }
+    }
+
+    // --- ОТПРАВКА ДАННЫХ ---
+
+    async function saveDocument(isCompleting) {
+        // 1. Собираем "Шапку" в JSON
+        const docData = {
+            id: document.getElementById('doc-id').value || null,
+            shipper: document.getElementById('doc-shipper').value,
+            consignee: document.getElementById('doc-consignee').value,
+            warehouse: { id: document.getElementById('doc-warehouse-id').value },
+            organization: { id: document.getElementById('doc-org-id').value },
+            type: 'OUTGOING', // Это наша ТТН
+            items: []
+        };
+
+        // 2. Собираем "Строки"
+        document.querySelectorAll('#product-table-body tr').forEach(row => {
+            docData.items.push({
+                product: { id: row.querySelector('.product-id').value },
+                shelf: { id: row.querySelector('.shelf-id').value },
+                quantityExpected: parseInt(row.querySelector('.quantity-expected').value),
+                price: parseFloat(row.querySelector('.price').value)
+            });
+        });
+
+        // 3. Отправляем на бэкенд
+        let url = '/api/documents/create'; // Эндпоинт для создания (ты его создашь)
+        let method = 'POST';
+
+        // Если это "Провести", то дергаем эндпоинт "complete"
+        // ВАЖНО: Для хакатона можно упростить: сначала сохранить (POST),
+        // а потом, если isCompleting=true, тут же отправить второй запрос.
+
+        // **Упрощенная логика для хакатона:**
+        // Сначала всегда создаем/обновляем DRAFT
+        const saveResponse = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(docData)
+        });
+
+        if (!saveResponse.ok) {
+            alert('Ошибка сохранения черновика!');
+            return;
+        }
+
+        const savedDoc = await saveResponse.json();
+        document.getElementById('doc-id').value = savedDoc.id;
+        alert('Черновик сохранен!');
+
+        // 4. Если нажали "Провести", то *сразу* дергаем эндпоинт "Complete"
+        if (isCompleting) {
+            const completeResponse = await fetch(`/api/documents/${savedDoc.id}/complete`, {
+                method: 'POST'
+            });
+
+            if (completeResponse.ok) {
+                alert('Документ УСПЕШНО ПРОВЕДЕН! Остатки на складе изменены.');
+            } else {
+                alert('ОШИБКА ПРОВЕДЕНИЯ! Остатков не хватило?');
+            }
+        }
+    }
+
+    // loadDocument(1); // Раскомментируй, чтобы проверить загрузку
+</script>
+
+</body>
+</html>
