@@ -110,7 +110,7 @@ public class ProductService {
         Product product = findById(id);
 
         product.setName(productDetails.getName());
-        product.setQuantity(productDetails.getQuantity());
+       // product.setQuantity(productDetails.getQuantity());
         product.setCategory(productDetails.getCategory());
         product.setBrand(productDetails.getBrand());
         product.setPrice(productDetails.getPrice());
@@ -230,7 +230,7 @@ public class ProductService {
         ProductDto dto = new ProductDto();
         dto.setId(product.getId());
         dto.setName(product.getName());
-        dto.setQuantity(product.getQuantity());
+       // dto.setQuantity(product.getQuantity());
         dto.setCategory(product.getCategory());
         dto.setBrand(product.getBrand());
         dto.setPrice(product.getPrice());

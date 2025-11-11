@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.springframework.security.core.userdetails.User;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "organization")
@@ -16,21 +18,20 @@ public class Organization {
     private String name;
     private String address;
 
-    @OneToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private Users owner;
-
+//    @OneToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+//    private Users owner;
+@OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+private Set<OrganizationMembership> members = new HashSet<>();
     private LocalDateTime createdAt;
 
     public Organization(String address,
                         LocalDateTime createdAt,
                         Long id,
-                        String name,
-                        Users owner) {
+                        String name) {
         this.address = address;
         this.createdAt = createdAt;
         this.id = id;
         this.name = name;
-        this.owner = owner;
     }
 
     public Organization() {
@@ -68,14 +69,22 @@ public class Organization {
         this.name = name;
     }
 
-    public Users getOwner() {
-        return owner;
+//    public Users getOwner() {
+//        return owner;
+//    }
+//
+//    public void setOwner(Users owner) {
+//        this.owner = owner;
+//    }
+
+
+    public Set<OrganizationMembership> getMembers() {
+        return members;
     }
 
-    public void setOwner(Users owner) {
-        this.owner = owner;
+    public void setMembers(Set<OrganizationMembership> members) {
+        this.members = members;
     }
-
 
     @PrePersist
     public void prePersist() {

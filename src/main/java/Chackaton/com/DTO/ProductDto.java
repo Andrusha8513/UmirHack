@@ -6,7 +6,7 @@ public class ProductDto {
     // Поля для каталога и админ-панели
     private Long id;
     private String name;
-    private Integer quantity;
+    //private Integer quantity;
     private String category;
     private String brand;
     private Double price;
@@ -37,7 +37,7 @@ public class ProductDto {
 
     public ProductDto(Long id,
                       String name,
-                      Integer quantity,
+                      //Integer quantity,
                       String category,
                       String brand,
                       Double price,
@@ -54,7 +54,7 @@ public class ProductDto {
                       Double volume){
         this.id = id;
         this.name = name;
-        this.quantity = quantity;
+       // this.quantity = quantity;
         this.carBrand = category;
         this.brand = brand;
         this.price = price;
@@ -97,11 +97,11 @@ public class ProductDto {
     public void setName(String name) {
         this.name = name; }
 
-    public Integer getQuantity() {
-        return quantity; }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity; }
+//    public Integer getQuantity() {
+//        return quantity; }
+//
+//    public void setQuantity(Integer quantity) {
+//        this.quantity = quantity; }
 
     public String getCategory() {
         return category; }

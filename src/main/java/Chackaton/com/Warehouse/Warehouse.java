@@ -26,6 +26,9 @@ public class Warehouse {
     private Integer currentCapacity;  // Текущая загруженность
     private Double totalArea;         // Общая площадь (м²)
 
+    @Column(nullable = false)
+    private Double maxVolume;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -143,5 +146,13 @@ public class Warehouse {
 
     public void setZones(List<StorageZone> zones) {
         this.zones = zones;
+    }
+
+    public Double getMaxVolume() {
+        return maxVolume;
+    }
+
+    public void setMaxVolume(Double maxVolume) {
+        this.maxVolume = maxVolume;
     }
 }

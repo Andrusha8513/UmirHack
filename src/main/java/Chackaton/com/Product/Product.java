@@ -18,7 +18,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Integer quantity;
+//    private Integer quantity;
     private String category;
     private String brand;
     private Double price;
@@ -47,7 +47,7 @@ public class Product {
                    String manufacturer,
                    String carBrand,
                    Double price,
-                   Integer quantity,
+                   //Integer quantity,
                    Double weight,
                    Double length,
                    Double width,
@@ -63,7 +63,7 @@ public class Product {
         this.manufacturer = manufacturer;
         this.carBrand = carBrand;
         this.price = price;
-        this.quantity = quantity;
+        //this.quantity = quantity;
         this.weight = weight;
         this.length = length;
         this.height = height;
@@ -103,13 +103,13 @@ public class Product {
         this.carBrand = carBrand;
     }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+//    public Integer getQuantity() {
+//        return quantity;
+//    }
+//
+//    public void setQuantity(Integer quantity) {
+//        this.quantity = quantity;
+//    }
 
     public String getCategory() {
         return category;

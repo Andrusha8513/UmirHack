@@ -4,6 +4,7 @@ import Chackaton.com.DTO.StockItemDto;
 import Chackaton.com.Organization.Organization;
 import Chackaton.com.Product.Product;
 import Chackaton.com.Warehouse.StorangeZone.Rack.Shelf.Shelf;
+import Chackaton.com.Warehouse.Warehouse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,29 @@ public class StockService {
     // Добавить товар на полку
     @Transactional
     public StockItem addProductToShelf(Product product, Shelf shelf, Integer quantity, Organization organization) {
+
+        Warehouse warehouse = shelf.getRack().getZone().getWarehouse();
+        Double maxVolume = warehouse.getMaxVolume();
+
+
+        Double addVolume = product.getVolume() * quantity;
+        if(addVolume == null || addVolume <= 0){
+            throw new IllegalArgumentException("Невозможно добавить товар: не указан объем продукта.");
+        }
+        //текущи занятый объём
+        Double currentVolume = stockItemRepository.getTotalVolumeInWarehouse(warehouse);
+        if(currentVolume == null){
+            currentVolume = 0.0;
+        }
+        if (currentVolume + addVolume > maxVolume) {
+            throw new RuntimeException(
+                    String.format("Ошибка: Превышен максимальный объем склада. Текущий: %.2f м³, Попытка добавить: %.2f м³, Максимум: %.2f м³",
+                            currentVolume, addVolume, maxVolume)
+            );
+        }
+
+
+
         // Проверяем, есть ли уже этот товар на этой полке
         StockItem existingStock = stockItemRepository.findByProductAndShelf(product, shelf)
                 .orElse(null);
@@ -31,6 +55,7 @@ public class StockService {
         } else {
             // Создаем новую запись
             StockItem newStock = new StockItem(product, shelf, quantity, organization);
+            newStock.setStatus(StockItemStatus.IN_SORTING);
             return stockItemRepository.save(newStock);
         }
     }
@@ -46,6 +71,7 @@ public class StockService {
         }
 
         stockItem.setQuantity(stockItem.getQuantity() - quantity);
+        stockItem.setStatus(StockItemStatus.SHIPPED);
 
         // Если количество стало 0, удаляем запись
         if (stockItem.getQuantity() == 0) {

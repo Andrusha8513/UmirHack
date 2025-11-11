@@ -6,6 +6,8 @@ import Chackaton.com.Warehouse.WarehouseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/storage-zones")
 
@@ -43,5 +45,11 @@ public class StorageZoneController {
     public ResponseEntity<Void> deleteStorageZone(@PathVariable Long zoneId) {
         storageZoneService.deleteStorageZone(zoneId);
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/warehouse/{warehouseId}")
+    public ResponseEntity<List<StorageZone>> getZonesForWarehouse(@PathVariable Long warehouseId) {
+        // Нужен метод в StorageZoneRepository: findByWarehouseId(Long warehouseId)
+        List<StorageZone> zones = storageZoneService.findByWarehouse(warehouseId);
+        return ResponseEntity.ok(zones);
     }
 }

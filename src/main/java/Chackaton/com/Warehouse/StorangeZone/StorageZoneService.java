@@ -3,6 +3,8 @@ package Chackaton.com.Warehouse.StorangeZone;
 import Chackaton.com.Warehouse.Warehouse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StorageZoneService {
 
@@ -50,5 +52,9 @@ public class StorageZoneService {
     public StorageZone  findById(Long id){
         return storageZoneRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Не найдена зона с таким " + id));
+    }
+//вроде збс
+    public List<StorageZone> findByWarehouse(Long warehouseId) {
+        return storageZoneRepository.findAll();
     }
 }

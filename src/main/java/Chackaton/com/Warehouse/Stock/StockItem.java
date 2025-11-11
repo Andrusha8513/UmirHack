@@ -27,6 +27,11 @@ public class StockItem {
     private Integer quantity = 0;
 
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StockItemStatus status = StockItemStatus.IN_SORTING;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
@@ -139,5 +144,13 @@ public class StockItem {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public StockItemStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(StockItemStatus status) {
+        this.status = status;
     }
 }

@@ -37,4 +37,11 @@ public interface StockItemRepository extends JpaRepository<StockItem, Long> {
 
     // Проверить существование
     boolean existsByProductAndShelf(Product product, Shelf shelf);
+
+    @Query("SELECT SUM(si.quantity * si.product.volume) " +
+            "FROM StockItem si " +
+            "WHERE si.shelf.rack.zone.warehouse = :warehouse")
+    //Эта JPQL-query — ключ. Она идет по всем StockItem на складе, умножает кол-во на объем продукта и суммирует
+
+    Double getTotalVolumeInWarehouse(@Param("warehouse") Warehouse warehouse);
 }

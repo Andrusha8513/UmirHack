@@ -34,8 +34,8 @@ public class StockController {
         this.organizationRepository = organizationRepository;
     }
 
-    // Добавить товар на полку
-    @PostMapping("/add-to-shelf")
+    // Добавить товар на полку збс
+    @PostMapping("/add")
     public ResponseEntity<?> addProductToShelf(@RequestBody StockOperationRequest request) {
         try {
             Product product = productRepository.findById(request.getProductId())
@@ -53,6 +53,8 @@ public class StockController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 
     // Удалить товар с полки
     @PostMapping("/remove-from-shelf")
@@ -76,8 +78,8 @@ public class StockController {
         }
     }
 
-    // Переместить товар между полками
-    @PostMapping("/move-between-shelves")
+    // Переместить товар между полками збс
+    @PostMapping("/move")
     public ResponseEntity<?> moveProductBetweenShelves(@RequestBody MoveProductRequest request) {
         try {
             Product product = productRepository.findById(request.getProductId())

@@ -1,10 +1,12 @@
 package Chackaton.com.Users;
 
 
+import Chackaton.com.Organization.OrganizationMembership;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -28,6 +30,9 @@ public class Users implements Serializable {
 
     private String passwordResetCode;
     private LocalDateTime passwordResetCodeExpiryDate;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrganizationMembership> memberships = new HashSet<>();
 
     @ElementCollection(targetClass = Role.class , fetch = FetchType.LAZY)
     @CollectionTable(name = "users_role" , joinColumns = @JoinColumn(name = "users_id"))

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление Складом</title>
+</head>
+<body>
+<h1>Управление (Организация ID: <span id="org-id">...</span>)</h1>
+<p>На этой странице вы бы сначала выбрали организацию, затем склад, и т.д.</p>
+
+<h3>Создать Склад</h3>
+<form id="warehouse-form">
+    <input type="text" id="warehouse-name" placeholder="Название склада" required>
+    <input type="number" id="warehouse-volume" placeholder="Макс. Объем (м³)" required>
+    <input type="hidden" id="current-org-id" value="1">
+    <button type="submit">Создать Склад</button>
+</form>
+
+<h3>Создать Зону (в Складе ID: <span id="wh-id">1</span>)</h3>
+<form id="zone-form">
+    <input type="text" id="zone-name" placeholder="Название зоны" required>
+    <input type="hidden" id="current-warehouse-id" value="1">
+    <button type="submit">Создать Зону</button>
+</form>
+
+<hr>
+<h3>Поместить Товар на Полку (StockItem)</h3>
+<form id="stock-form">
+    <input type="number" id="product-id" placeholder="ID Товара" required>
+    <input type="number" id="shelf-id" placeholder="ID Полки" required>
+    <input type="number" id="quantity" placeholder="Количество" required>
+    <input type="hidden" id="stock-org-id" value="1"> <button type="submit">Добавить на полку</button>
+</form>
+
+<hr>
+<h3>Редактировать Склад (ID: <span id="edit-wh-id">1</span>)</h3>
+<form id="edit-warehouse-form">
+    <input type="text" id="edit-warehouse-name" placeholder="Новое название">
+    <button type="submit">Обновить Склад</button>
+</form>
+
+<div id="response-message"></div>
+
+<script>
+    const messageDiv = document.getElementById('response-message');
+    const token = localStorage.getItem('authToken');
+
+    // 1. Создание Склада
+    document.getElementById('warehouse-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('warehouse-name').value;
+        const maxVolume = parseFloat(document.getElementById('warehouse-volume').value);
+        const orgId = document.getElementById('current-org-id').value;
+
+        // Используем эндпоинт из WarehouseController
+        const response = await fetch(`/api/warehouses/organization/${orgId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({ name: name, maxVolume: maxVolume /* ... другие поля склада */ })
+        });
+        messageDiv.textContent = response.ok ? 'Склад создан!' : 'Ошибка создания склада.';
+    });
+
+    // 2. Создание Зоны
+    document.getElementById('zone-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('zone-name').value;
+        const warehouseId = document.getElementById('current-warehouse-id').value;
+
+        // Используем эндпоинт из StorageZoneController
+        const response = await fetch(`/api/storage-zones/${warehouseId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({ name: name })
+        });
+        messageDiv.textContent = response.ok ? 'Зона создана!' : 'Ошибка создания зоны.';
+    });
+
+    // 3. Добавление Товара на Полку (StockItem)
+    document.getElementById('stock-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const body = {
+            productId: document.getElementById('product-id').value,
+            shelfId: document.getElementById('shelf-id').value,
+            quantity: parseInt(document.getElementById('quantity').value),
+            organizationId: document.getElementById('stock-org-id').value
+        };
+
+        // Используем наш НОВЫЙ StockController
+        const response = await fetch('/api/stock/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify(body)
+        });
+        messageDiv.textContent = response.ok ? 'Товар добавлен!' : 'Ошибка добавления товара.';
+    });
+
+    // 4. Редактирование Склада
+    document.getElementById('edit-warehouse-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const warehouseId = document.getElementById('edit-wh-id').textContent;
+        const newName = document.getElementById('edit-warehouse-name').value;
+
+        // Используем эндпоинт из WarehouseController
+        const response = await fetch(`/api/warehouses/${warehouseId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({ name: newName /* ... другие поля ... */ })
+        });
+        messageDiv.textContent = response.ok ? 'Склад обновлен!' : 'Ошибка обновления.';
+    });
+</script>
+</body>
+</html>

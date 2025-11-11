@@ -3,6 +3,8 @@ package Chackaton.com.Warehouse;
 import Chackaton.com.Organization.Organization;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class WarehouseService {
     private final WarehouseRepository warehouseRepository;
@@ -44,4 +46,11 @@ public class WarehouseService {
         warehouseRepository.deleteById(id);;
 
     }
+
+    public List<Warehouse> findAllByOrganization(Organization organization) {
+        // Используем добавленный в репозиторий метод
+        return warehouseRepository.findByOrganization(organization);
+    }
+
+
 }

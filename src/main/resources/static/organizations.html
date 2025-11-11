@@ -1,302 +1,66 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление организациями</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .organization-card {
-            transition: transform 0.2s;
-            margin-bottom: 20px;
-        }
-        .organization-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .header-section {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        .required-field::after {
-            content: " *";
-            color: red;
-        }
-    </style>
+    <title>Список Организаций</title>
 </head>
 <body>
-<!-- Навигация -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="/main">Inventory System</a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" th:href="@{/profile-edit}">Профиль</a>
-            <a class="nav-link" href="/logout">Выйти</a>
-        </div>
-    </div>
-</nav>
-
-<!-- Заголовок -->
-<div class="header-section">
-    <div class="container">
-        <h1>Управление организациями</h1>
-        <p class="lead">Создайте и управляйте вашими организациями</p>
-    </div>
+<h2>Доступные организации</h2>
+<div id="org-list">
+    <p>Загрузка...</p>
 </div>
 
-<div class="container">
-    <!-- Форма создания организации -->
-    <div class="row mb-4">
-        <div class="col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Создать новую организацию</h5>
-                </div>
-                <div class="card-body">
-                    <form id="createOrgForm">
-                        <div class="mb-3">
-                            <label for="orgName" class="form-label required-field">Название организации</label>
-                            <input type="text" class="form-control" id="orgName" required
-                                   placeholder="Введите название организации">
-                            <div class="form-text">Уникальное название вашей организации</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="orgAddress" class="form-label">Адрес организации</label>
-                            <textarea class="form-control" id="orgAddress" rows="3"
-                                      placeholder="Введите полный адрес организации"></textarea>
-                        </div>
-
-                        <div class="alert alert-info">
-                            <strong>Информация:</strong> Организация будет автоматически привязана к вашему аккаунту как владельцу.
-                        </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="reset" class="btn btn-secondary me-md-2">Очистить</button>
-                            <button type="submit" class="btn btn-primary">Создать организацию</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Список организаций -->
-    <div class="row">
-        <div class="col-12">
-            <h3>Мои организации</h3>
-            <div id="organizationsList" class="row">
-                <!-- Организации будут загружены через JavaScript -->
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        Загрузка списка организаций...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Модальное окно для сообщений -->
-<div class="modal fade" id="messageModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Уведомление</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalMessage"></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Загрузка организаций при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        loadOrganizations();
+    window.addEventListener('load', async () => {
+        const listDiv = document.getElementById('org-list');
+        const token = localStorage.getItem('authToken');
 
-        // Обработка формы создания организации
-        document.getElementById('createOrgForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            createOrganization();
-        });
+        try {
+            // Используем наш НОВЫЙ эндпоинт в OrganizationController
+            const response = await fetch('/api/organization/all', {
+                headers: {'Authorization': `Bearer ${token}`}
+            });
+
+            if (!response.ok) {
+                listDiv.textContent = 'Ошибка загрузки списка.';
+                return;
+            }
+
+            const organizations = await response.json();
+            listDiv.innerHTML = ''; // Очищаем "Загрузка..."
+
+            if (organizations.length === 0) {
+                listDiv.textContent = 'Организаций пока нет.';
+                return;
+            }
+
+            organizations.forEach(org => {
+                const orgElement = document.createElement('div');
+                orgElement.style.border = '1px solid black';
+                orgElement.style.padding = '10px';
+                orgElement.style.marginBottom = '5px';
+
+                orgElement.innerHTML = `
+                        <h3>${org.name}</h3>
+                        <p>Адрес: ${org.address || 'Не указан'}</p>
+                        <button class="join-btn" data-org-id="${org.id}">Вступить</button>
+                    `;
+                listDiv.appendChild(orgElement);
+            });
+
+        } catch (error) {
+            listDiv.textContent = `Сетевая ошибка: ${error}`;
+        }
     });
 
-    // Функция загрузки организаций
-    async function loadOrganizations() {
-        try {
-            const response = await fetch('/api/organization/my', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                const organizations = await response.json();
-                displayOrganizations(organizations);
-            } else if (response.status === 404) {
-                // Если endpoint не реализован, пробуем общий endpoint
-                try {
-                    const responseAll = await fetch('/api/organization', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        credentials: 'include'
-                    });
-
-                    if (responseAll.ok) {
-                        const allOrganizations = await responseAll.json();
-                        // Фильтруем только свои организации (если бэкенд возвращает все)
-                        const myOrganizations = allOrganizations.filter(org =>
-                            org.owner && org.owner.email === getCurrentUserEmail()
-                        );
-                        displayOrganizations(myOrganizations);
-                    } else {
-                        showNoOrganizationsMessage();
-                    }
-                } catch {
-                    showNoOrganizationsMessage();
-                }
-            } else {
-                showNoOrganizationsMessage();
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showNoOrganizationsMessage();
+    // "Вступить" (пока просто выводит ID)
+    document.getElementById('org-list').addEventListener('click', function(e) {
+        if (e.target.classList.contains('join-btn')) {
+            const orgId = e.target.getAttribute('data-org-id');
+            alert(`Тут будет логика вступления в организацию ID: ${orgId}`);
+            // Здесь бы ты вызвал `fetch('/api/organization/join', ...)`
         }
-    }
-
-    function showNoOrganizationsMessage() {
-        document.getElementById('organizationsList').innerHTML = `
-            <div class="col-12">
-                <div class="alert alert-info">
-                    У вас пока нет организаций. Создайте первую организацию используя форму выше.
-                </div>
-            </div>`;
-    }
-
-    // Функция создания организации
-    async function createOrganization() {
-        const organizationData = {
-            name: document.getElementById('orgName').value,
-            address: document.getElementById('orgAddress').value
-        };
-
-        if (!organizationData.name) {
-            showMessage('Пожалуйста, введите название организации');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/organization/createOrganization', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(organizationData)
-            });
-
-            if (response.ok) {
-                const newOrg = await response.json();
-                showMessage('Организация успешно создана!');
-                document.getElementById('createOrgForm').reset();
-                loadOrganizations(); // Перезагружаем список
-            } else {
-                const errorText = await response.text();
-                let errorMessage = 'Ошибка создания организации';
-
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorMessage;
-                } catch (e) {
-                    errorMessage = errorText || errorMessage;
-                }
-
-                showMessage('Ошибка создания: ' + errorMessage);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showMessage('Ошибка при создании организации: ' + error.message);
-        }
-    }
-
-    // Отображение организаций
-    function displayOrganizations(organizations) {
-        const container = document.getElementById('organizationsList');
-
-        if (!organizations || organizations.length === 0) {
-            showNoOrganizationsMessage();
-            return;
-        }
-
-        container.innerHTML = organizations.map(org => `
-            <div class="col-md-6 col-lg-4">
-                <div class="card organization-card">
-                    <div class="card-body">
-                        <h5 class="card-title">${escapeHtml(org.name)}</h5>
-                        <p class="card-text">
-                            <strong>ID:</strong> ${org.id}<br>
-                            <strong>Адрес:</strong> ${escapeHtml(org.address || 'Не указан')}<br>
-                            <strong>Владелец:</strong> ${org.owner ? escapeHtml(org.owner.email) : 'Вы'}<br>
-                            <strong>Создана:</strong> ${org.createdAt ? new Date(org.createdAt).toLocaleDateString('ru-RU') : 'Недавно'}
-                        </p>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewOrganization(${org.id})">
-                                Просмотреть
-                            </button>
-                            <button class="btn btn-outline-secondary btn-sm" onclick="editOrganization(${org.id})">
-                                Редактировать
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Вспомогательная функция для получения email текущего пользователя
-    function getCurrentUserEmail() {
-        // В реальном приложении это должно получаться из контекста безопасности
-        // Здесь просто заглушка - в реальности нужно реализовать получение текущего пользователя
-        return "current@user.com"; // Заглушка
-    }
-
-    // Просмотр организации (заглушка)
-    function viewOrganization(orgId) {
-        showMessage(`Просмотр организации с ID: ${orgId} - функционал в разработке`);
-    }
-
-    // Редактирование организации (заглушка)
-    function editOrganization(orgId) {
-        showMessage(`Редактирование организации с ID: ${orgId} - функционал в разработке`);
-    }
-
-    // Вспомогательная функция для показа сообщений
-    function showMessage(message) {
-        document.getElementById('modalMessage').textContent = message;
-        new bootstrap.Modal(document.getElementById('messageModal')).show();
-    }
-
-    // Экранирование HTML
-    function escapeHtml(unsafe) {
-        if (!unsafe) return '';
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+    });
 </script>
 </body>
 </html>
