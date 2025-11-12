@@ -1,5 +1,6 @@
 package Chackaton.com.Product;
 
+import Chackaton.com.Barcode.BarcodeDecoderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,17 +16,64 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-
+    private final BarcodeDecoderService barcodeDecoderService;
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService,
+                             BarcodeDecoderService barcodeDecoderService) {
         this.productService = productService;
+        this.barcodeDecoderService = barcodeDecoderService;
     }
 
     @GetMapping("/AllProducts")
     public ResponseEntity<List<ProductDto>> getAllProduct(@RequestParam(name = "name", required = false) String name) {
         List<ProductDto> products = productService.getAllProductsAsDto(name);
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("{productId}/barcode")
+    public ResponseEntity<byte[]> getProductBarcode(@PathVariable Long productId){
+
+       try {
+           Product product = productService.findById(productId);
+           return ResponseEntity.ok(product.getBarcodeImage());
+       }catch (Exception e){
+           return ResponseEntity.badRequest().build();
+       }
+    }
+
+    @PostMapping("/decode")
+    public ResponseEntity<String> decoderBarcode(@RequestParam("file") MultipartFile file){
+        try {
+            String s = barcodeDecoderService.decoderBarcode(file);
+            return ResponseEntity.ok(s);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("{productId}/decoderBarcode/decode")
+    public ResponseEntity<String>decodeBarcodeByProductId (@PathVariable Long productId){
+        try {
+            Product product = productService.findById(productId);
+            String decoderText = barcodeDecoderService.decoderBarcode(product.getBarcodeImage());
+            return ResponseEntity.ok(decoderText);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    @GetMapping("decode-and-find")
+    public ResponseEntity<Product> decodeAndFindProduct(@RequestParam("file") MultipartFile file){
+       try {
+           String decodeText = barcodeDecoderService.decoderBarcode(file);
+           Product product = productService.findProductByBarcodeValue(decodeText);
+           return ResponseEntity.ok(product);
+       }catch (Exception e){
+           return ResponseEntity.badRequest().build();
+       }
+
     }
 
 

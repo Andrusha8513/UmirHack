@@ -13,7 +13,6 @@ public class ProductDto {
     private String articleNumber;
     private String description;
     private String manufacturer;
-    private String carBrand;
     private Boolean inStock;
     private Long previewImageId;
 
@@ -37,14 +36,12 @@ public class ProductDto {
 
     public ProductDto(Long id,
                       String name,
-                      //Integer quantity,
                       String category,
                       String brand,
                       Double price,
                       String articleNumber,
                       String description,
                       String manufacturer,
-                      String carBrand,
                       Boolean inStock,
                       Long previewImageId,
                       Double weight,
@@ -54,14 +51,13 @@ public class ProductDto {
                       Double volume){
         this.id = id;
         this.name = name;
-       // this.quantity = quantity;
-        this.carBrand = category;
+        this.category = category;
         this.brand = brand;
         this.price = price;
         this.articleNumber = articleNumber;
         this.description = description;
         this.manufacturer = manufacturer;
-        this.carBrand = carBrand;
+        this.brand = brand;
         this.inStock = inStock;
         this.previewImageId = previewImageId;
         this.weight = weight;
@@ -96,12 +92,6 @@ public class ProductDto {
 
     public void setName(String name) {
         this.name = name; }
-
-//    public Integer getQuantity() {
-//        return quantity; }
-//
-//    public void setQuantity(Integer quantity) {
-//        this.quantity = quantity; }
 
     public String getCategory() {
         return category; }
@@ -140,10 +130,10 @@ public class ProductDto {
         this.manufacturer = manufacturer; }
 
     public String getCarBrand(){
-        return carBrand;}
+        return brand;}
 
     public void setCarBrand(String carBrand){
-        this.carBrand = carBrand;}
+        this.brand = carBrand;}
 
     public Boolean getInStock() {
         return inStock; }

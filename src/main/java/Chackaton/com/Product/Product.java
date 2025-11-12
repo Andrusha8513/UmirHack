@@ -18,15 +18,23 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-//    private Integer quantity;
+
+
     private String category;
     private String brand;
     private Double price;
     private String articleNumber;
     private String description;
     private String manufacturer;
-    private String carBrand;
     private Boolean inStock;
+
+
+    @Column(name = "barcode")
+    private String barcode; // штрих код
+
+    @Column(name = "barcode_image")
+    private byte[] barcodeImage; //
+
 
     private Double weight;           // Вес в кг
     private Double length;           // Длина в см
@@ -45,9 +53,7 @@ public class Product {
                    Boolean inStock,
                    String name,
                    String manufacturer,
-                   String carBrand,
                    Double price,
-                   //Integer quantity,
                    Double weight,
                    Double length,
                    Double width,
@@ -61,9 +67,7 @@ public class Product {
         this.inStock = inStock;
         this.name = name;
         this.manufacturer = manufacturer;
-        this.carBrand = carBrand;
         this.price = price;
-        //this.quantity = quantity;
         this.weight = weight;
         this.length = length;
         this.height = height;
@@ -74,6 +78,41 @@ public class Product {
     public Product() {
     }
 
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public byte[] getBarcodeImage() {
+        return barcodeImage;
+    }
+
+    public void setBarcodeImage(byte[] barcodeImage) {
+        this.barcodeImage = barcodeImage;
+    }
+
+    public LocalDate getDateOfCreated() {
+        return dateOfCreated;
+    }
+
+    public void setDateOfCreated(LocalDate dateOfCreated) {
+        this.dateOfCreated = dateOfCreated;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<StockItem> getStockItems() {
+        return stockItems;
+    }
+
+    public void setStockItems(List<StockItem> stockItems) {
+        this.stockItems = stockItems;
+    }
 
     public String getManufacturer() {
         return manufacturer;
@@ -95,13 +134,6 @@ public class Product {
         this.name = name;
     }
 
-    public String getCarBrand() {
-        return carBrand;
-    }
-
-    public void setCarBrand(String carBrand) {
-        this.carBrand = carBrand;
-    }
 
 //    public Integer getQuantity() {
 //        return quantity;
@@ -244,25 +276,4 @@ public class Product {
     }
 
 
-    // Метод для получения общего количества на всех складах
-    public Integer getTotalQuantityInOrganization(Organization organization) {
-        if (stockItems == null) return 0;
-        return stockItems.stream()
-                .filter(item -> item.getOrganization().equals(organization))
-                .mapToInt(StockItem::getQuantity)
-                .sum();
-    }
-
-    // Метод для получения местоположения товара
-    public List<String> getProductLocations(Organization organization) {
-        if (stockItems == null) return new ArrayList<>();
-        return stockItems.stream()
-                .filter(item -> item.getOrganization().equals(organization) && item.getQuantity() > 0)
-                .map(item -> String.format("Склад: %s, Зона: %s, Стеллаж: %s, Полка: %s",
-                        item.getShelf().getRack().getZone().getWarehouse().getName(),
-                        item.getShelf().getRack().getZone().getName(),
-                        item.getShelf().getRack().getCode(),
-                        item.getShelf().getCode()))
-                .collect(Collectors.toList());
-    }
 }

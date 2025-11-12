@@ -1,11 +1,9 @@
 package Chackaton.com.Product;
 
+import Chackaton.com.Barcode.BarcodeService;
 import Chackaton.com.Organization.Organization;
 import Chackaton.com.Warehouse.Stock.StockItem;
 import Chackaton.com.Warehouse.Stock.StockItemRepository;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,16 +11,12 @@ import Chackaton.com.DTO.ImageDto;
 import Chackaton.com.DTO.ProductDto;
 import Chackaton.com.Image.Image;
 import Chackaton.com.Image.ImageRepository;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-
-
-
-
-
 
 
 @Service
@@ -31,13 +25,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ImageRepository imageRepository;
     private final StockItemRepository stockItemRepository;
+    private final BarcodeService barcodeService;
 
     public ProductService(ProductRepository productRepository,
                           ImageRepository imageRepository,
-                          StockItemRepository stockItemRepository) {
+                          StockItemRepository stockItemRepository,
+                          BarcodeService barcodeService) {
         this.productRepository = productRepository;
         this.imageRepository = imageRepository;
         this.stockItemRepository = stockItemRepository;
+        this.barcodeService = barcodeService;
     }
 
 
@@ -50,8 +47,14 @@ public class ProductService {
 
 
     @Transactional
-   // @CacheEvict(value = "products", allEntries = true)
+    // @CacheEvict(value = "products", allEntries = true)
     public Product createProduct(Product product, List<MultipartFile> files) throws IOException {
+
+        String barcodeValue = "PRD" + System.currentTimeMillis();
+        byte[] barcodeImage = barcodeService.generateCode(barcodeValue);
+        product.setBarcode(barcodeValue);
+        product.setBarcodeImage(barcodeImage);
+
         if (files != null && !files.isEmpty()) {
             for (int i = 0; i < files.size(); i++) {
                 MultipartFile file = files.get(i);
@@ -103,19 +106,19 @@ public class ProductService {
 
 
     @Transactional
-   // @CacheEvict(value = "products", key = "#id")
+    // @CacheEvict(value = "products", key = "#id")
     public Product updateProduct(Long id,
                                  Product productDetails,
                                  List<MultipartFile> files) throws IOException {
         Product product = findById(id);
 
         product.setName(productDetails.getName());
-       // product.setQuantity(productDetails.getQuantity());
+        // product.setQuantity(productDetails.getQuantity());
         product.setCategory(productDetails.getCategory());
         product.setBrand(productDetails.getBrand());
         product.setPrice(productDetails.getPrice());
         product.setDescription(productDetails.getDescription());
-        product.setCarBrand(productDetails.getCarBrand());
+        product.setBrand(productDetails.getBrand());
         product.setInStock(productDetails.getInStock());
         product.setManufacturer(productDetails.getManufacturer());
 
@@ -140,7 +143,6 @@ public class ProductService {
         }
         return productRepository.save(product);
     }
-
 
 
     @Transactional
@@ -188,9 +190,8 @@ public class ProductService {
     }
 
 
-
     @Transactional
-   // @CacheEvict(value = "products", key = "#id")
+    // @CacheEvict(value = "products", key = "#id")
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new IllegalArgumentException("Продукт с id=" + id + " не найден.");
@@ -198,7 +199,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-   // @Cacheable(value = "products", key = "#id")
+    // @Cacheable(value = "products", key = "#id")
     public Product findById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Продукта с таким id" + id + " нет"));
@@ -230,14 +231,13 @@ public class ProductService {
         ProductDto dto = new ProductDto();
         dto.setId(product.getId());
         dto.setName(product.getName());
-       // dto.setQuantity(product.getQuantity());
         dto.setCategory(product.getCategory());
         dto.setBrand(product.getBrand());
         dto.setPrice(product.getPrice());
         dto.setArticleNumber(product.getArticleNumber());
         dto.setDescription(product.getDescription());
         dto.setManufacturer(product.getManufacturer());
-        dto.setCarBrand(product.getCarBrand());
+        dto.setCarBrand(product.getBrand());
         dto.setInStock(product.getInStock());
         dto.setPreviewImageId(product.getPreviewImageId());
         dto.setWeight(product.getWeight());
@@ -254,6 +254,7 @@ public class ProductService {
 
         return dto;
     }
+
     public Double calculateVolume(Product product) {
 
         if (product.getLength() != null && product.getWidth() != null && product.getHeight() != null) {
@@ -262,6 +263,13 @@ public class ProductService {
         return null;
     }
 
+
+ public Product findProductByBarcodeValue(String barcodeValue){
+        return productRepository.findAll().stream()
+                .filter(p -> barcodeValue.equals(p.getBarcode()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Продукт с указанным штрих-кодом не найден"));
+ }
 
     // Получить общее количество товара в организации
     public Integer getTotalProductQuantityInOrganization(Product product, Organization organization) {
@@ -289,6 +297,29 @@ public class ProductService {
     public List<StockItem> getProductStockDetails(Product product, Organization organization) {
         return stockItemRepository.findByProductAndOrganization(product, organization);
     }
+
+
+//    // Метод для получения общего количества на всех складах
+//    public Integer getTotalQuantityInOrganization(Organization organization) {
+//        if (stockItems == null) return 0;
+//        return stockItems.stream()
+//                .filter(item -> item.getOrganization().equals(organization))
+//                .mapToInt(StockItem::getQuantity)
+//                .sum();
+//    }
+//
+//    // Метод для получения местоположения товара
+//    public List<String> getProductLocations(Organization organization) {
+//        if (stockItems == null) return new ArrayList<>();
+//        return stockItems.stream()
+//                .filter(item -> item.getOrganization().equals(organization) && item.getQuantity() > 0)
+//                .map(item -> String.format("Склад: %s, Зона: %s, Стеллаж: %s, Полка: %s",
+//                        item.getShelf().getRack().getZone().getWarehouse().getName(),
+//                        item.getShelf().getRack().getZone().getName(),
+//                        item.getShelf().getRack().getCode(),
+//                        item.getShelf().getCode()))
+//                .collect(Collectors.toList());
+//    }
 
 }
 
