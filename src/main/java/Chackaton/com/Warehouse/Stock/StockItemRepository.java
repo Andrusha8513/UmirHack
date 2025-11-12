@@ -59,4 +59,6 @@ public interface StockItemRepository extends JpaRepository<StockItem, Long> {
             "LEFT JOIN FETCH si.product " +
             "WHERE si.shelf IN :shelves")
     List<StockItem> findByShelvesWithProduct(@Param("shelves") List<Shelf> shelves);
+
+    List<StockItem> findByOrganizationAndStatus(Organization organizationFrom, StockItemStatus stockItemStatus);
 }
