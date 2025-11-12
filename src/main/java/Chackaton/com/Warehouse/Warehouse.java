@@ -39,11 +39,7 @@ public class Warehouse {
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private List<StorageZone> zones = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
-//    private List<Rack> racks = new ArrayList<>();
-
-//    @Enumerated(EnumType.STRING)
-//    private StorageType primaryStorageType;
+;
 
     @ElementCollection(targetClass = StatusWarehouse.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "warehouse_statuses", joinColumns = @JoinColumn(name = "warehouse_id"))

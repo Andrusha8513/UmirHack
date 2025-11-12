@@ -17,10 +17,13 @@ public interface ShelfRepository extends JpaRepository<Shelf, Long> {
     @Query("SELECT r FROM Shelf r WHERE r.rack.id = :rackId")
     List<Shelf> findByRackId(@Param("rackId") Long rackId);
 
-    // Добавляем недостающие методы
+
+
+    // В ShelfRepository
     @Query("SELECT MAX(s.level) FROM Shelf s WHERE s.rack = :rack")
     Integer findMaxLevelByRack(@Param("rack") Rack rack);
 
     @Query("SELECT MAX(s.position) FROM Shelf s WHERE s.rack = :rack AND s.level = :level")
     Integer findMaxPositionByRackAndLevel(@Param("rack") Rack rack, @Param("level") Integer level);
+
 }

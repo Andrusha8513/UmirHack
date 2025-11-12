@@ -132,8 +132,8 @@ public class TtnService {
         return new WarehouseDto(warehouse.getId(), warehouse.getName(), warehouse.getAddress());
     }
 
+    // доработать
     private TtnPersonnelDto getPersonnelInfo() {
-        // В реальной системе здесь будет логика получения данных о текущем пользователе
         return new TtnPersonnelDto(
                 new TtnPersonDto("Начальник склада", "Иванов А.С."),
                 new TtnPersonDto("Кладовщик", "Петрова М.И."),

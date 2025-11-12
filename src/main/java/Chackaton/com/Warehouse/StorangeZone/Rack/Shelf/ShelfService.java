@@ -36,16 +36,12 @@ public class ShelfService {
         // Формат: {код стеллажа}-{уровень}-{позиция} (например: ZONE-A-001-01-01)
         String baseCode = rack.getCode();
 
-        // Если уровень не указан, генерируем автоматически
         if (level == null) {
-            // Находим максимальный уровень в стеллаже
             Integer maxLevel = shelfRepository.findMaxLevelByRack(rack);
             level = maxLevel != null ? maxLevel + 1 : 1;
         }
 
-        // Если позиция не указана, генерируем автоматически
         if (position == null) {
-            // Находим максимальную позицию на уровне
             Integer maxPosition = shelfRepository.findMaxPositionByRackAndLevel(rack, level);
             position = maxPosition != null ? maxPosition + 1 : 1;
         }
@@ -54,7 +50,6 @@ public class ShelfService {
     }
 
     private void validateShelfCapacity(Rack rack, Shelf shelf) {
-        // Проверка максимального веса
         if (shelf.getMaxWeight() != null && rack.getMaxWeight() != null) {
             if (shelf.getMaxWeight() > rack.getMaxWeight()) {
                 throw new IllegalArgumentException(
@@ -64,7 +59,6 @@ public class ShelfService {
             }
         }
 
-        // Проверка объема
         if (shelf.getVolume() != null) {
             Double rackVolume = calculateRackVolume(rack);
             Double usedVolume = calculateUsedRackVolume(rack);
@@ -80,7 +74,6 @@ public class ShelfService {
     }
 
     private Double calculateRackVolume(Rack rack) {
-        // Объем стеллажа = высота × ширина × глубина
         if (rack.getHeight() != null && rack.getWidth() != null && rack.getDepth() != null) {
             return rack.getHeight() * rack.getWidth() * rack.getDepth();
         }
@@ -88,7 +81,6 @@ public class ShelfService {
     }
 
     private Double calculateUsedRackVolume(Rack rack) {
-        // Суммируем объем всех полок стеллажа
         List<Shelf> shelves = shelfRepository.findByRack(rack);
         return shelves.stream()
                 .map(Shelf::getVolume)
@@ -112,7 +104,7 @@ public class ShelfService {
         // Получаем стеллаж, к которому принадлежит полка (он не меняется при обновлении)
         Rack currentRack = existingShelf.getRack();
 
-        //  Проверка на уникальность кода полки в пределах ее стеллажа (если код изменился)
+
         if (!existingShelf.getCode().equals(shelfDetails.getCode())) {
             if (shelfRepository.existsByRackAndCode(currentRack, shelfDetails.getCode())) {
                 throw new IllegalArgumentException(
@@ -149,10 +141,9 @@ public class ShelfService {
             shelf.setVolume(request.getVolume());
             shelf.setStatuses(request.getStatuses());
 
-            // Автоматическая генерация кода
+
             shelf.setCode(generateShelfCode(rack, request.getLevel(), request.getPosition()));
 
-            // Проверка емкости
             validateShelfCapacity(rack, shelf);
 
             shelf.setRack(rack);
@@ -162,4 +153,5 @@ public class ShelfService {
 
         return createdShelves;
     }
+
 }

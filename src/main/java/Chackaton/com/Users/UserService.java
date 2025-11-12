@@ -200,6 +200,20 @@ public class UserService {
         userRepository.save(users);
     }
 
+    @Transactional
+    public Users addFullName(Long id , String name,
+                            String lastName,
+                            String surName){
+
+        Users users = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователя не существует"));
+
+        users.setName(name);
+        users.setLastName(lastName);
+        users.setSurname(surName);
+return userRepository.save(users);
+    }
+
     public Users findEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователя нет"));
@@ -233,32 +247,32 @@ public class UserService {
         for (Object principal : sessionRegistry.getAllPrincipals()) {
             String principalName;
 
-            // Оопределяю  тип принципала и получаю     имя пользователя
-            if (principal instanceof org.springframework.security.core.userdetails.User) {
-                principalName = ((org.springframework.security.core.userdetails.User) principal).getUsername();
-            } else if (principal instanceof String) {
-                principalName = (String) principal;
-            } else if (principal instanceof Users) {
+//            // Оопределяю  тип принципала и получаю     имя пользователя
+//            if (principal instanceof org.springframework.security.core.userdetails.User) {
+//                principalName = ((org.springframework.security.core.userdetails.User) principal).getUsername();
+//            } else if (principal instanceof String) {
+//                principalName = (String) principal;
+//            } else
+           if (principal instanceof Users) {
                 principalName = ((Users) principal).getEmail();
             } else {
 
                 continue;
             }
 
-            System.out.println("Found principal: " + principalName);
+            System.out.println("Поиск principal : " + principalName);
 
-            // если нашёл нужного пользователя
             if (principalName.equals(username)) {
                 List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, false);
-                System.out.println("Found " + sessions.size() + " sessions for user: " + username);
+                System.out.println("Поиск " + sessions.size() + "сессия для юзера  " + username);
 
-                // Завершаем все сессии
+
                 sessions.forEach(session -> {
-                    System.out.println("Expiring session: " + session.getSessionId());
+                    System.out.println("Истекающая сессия: " + session.getSessionId());
                     session.expireNow();
                 });
 
-                return; //выход после обработки
+                return;
             }
         }
 
@@ -285,6 +299,7 @@ public class UserService {
             throw new IllegalArgumentException("Пользователя с таким id=%s нет".formatted(id));
         }
     }
+
 
 
 }

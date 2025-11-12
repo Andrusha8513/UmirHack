@@ -27,13 +27,12 @@ public class RackService {
     }
 
     private String generateRackCode(StorageZone zone) {
-        // Формат: {код зоны}-{номер} (например: ZONE-A-001)
         String zoneCode = zone.getName().replaceAll("[^A-Za-z0-9]", "").toUpperCase();
         if (zoneCode.length() > 5) {
             zoneCode = zoneCode.substring(0, 5);
         }
 
-        // Получаем количество стеллажей в зоне для следующего номера
+        // получаю епта  количество стеллажей в зоне для следующего номера
         long rackCount = rackRepository.countByZone(zone);
         String rackNumber = String.format("%03d", rackCount + 1);
 
@@ -66,8 +65,6 @@ public class RackService {
 
         existingRack.setCode(rackDetails.getCode());
         existingRack.setName(rackDetails.getName());
-        existingRack.setRowNumber(rackDetails.getRowNumber());
-        existingRack.setSectionNumber(rackDetails.getSectionNumber());
         existingRack.setTotalLevels(rackDetails.getTotalLevels());
         existingRack.setMaxWeight(rackDetails.getMaxWeight());
         existingRack.setHeight(rackDetails.getHeight());

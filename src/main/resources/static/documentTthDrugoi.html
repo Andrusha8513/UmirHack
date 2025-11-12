@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Товарно-транспортная накладная - UMIRHACK WMS</title>
+    <style>
+        /* Стили остаются такими же как в предыдущей версии */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; font-size: 12px; line-height: 1.2; background-color: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; border: 2px solid #2c3e50; padding: 15px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .system-header { background: #3498db; color: white; padding: 5px; margin-bottom: 10px; border-radius: 4px; }
+        .form-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .loading { text-align: center; padding: 50px; color: #666; }
+        .error { text-align: center; padding: 50px; color: #e74c3c; }
+        /* ... остальные стили ... */
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="system-header">
+        UMIRHACK Warehouse Management System - Товарно-транспортная накладная
+    </div>
+
+    <!-- Загрузочный экран -->
+    <div id="loading" class="loading">
+        <h3>Загрузка данных ТТН...</h3>
+        <p>Пожалуйста, подождите</p>
+    </div>
+
+    <!-- Сообщение об ошибке -->
+    <div id="error" class="error" style="display: none;">
+        <h3>Ошибка загрузки документа</h3>
+        <p id="errorMessage"></p>
+        <button onclick="location.reload()">Попробовать снова</button>
+    </div>
+
+    <!-- Основной контент (изначально скрыт) -->
+    <div id="content" style="display: none;">
+        <!-- Весь предыдущий HTML контент здесь -->
+        <div class="header">
+            <div class="form-title">ТОВАРНО-ТРАНСПОРТНАЯ НАКЛАДНАЯ</div>
+            <div class="form-info">Документ сгенерирован автоматически системой управления складом</div>
+        </div>
+
+        <div class="form-number">
+            Накладная №: <span class="data-field" id="documentNumber"></span>
+            Дата: <span class="data-field" id="documentDate"></span>
+        </div>
+
+        <!-- Организации -->
+        <div class="organization-info">
+            <div class="org-block">
+                <strong>👤 Грузоотправитель</strong>
+                <div class="data-field" id="shipper"></div>
+                <div>Код по ОКПО: <span class="data-field" id="shipperOkpo"></span></div>
+            </div>
+            <div class="org-block">
+                <strong>🏢 Грузополучатель</strong>
+                <div class="data-field" id="consignee"></div>
+                <div>Код по ОКПО: <span class="data-field" id="consigneeOkpo"></span></div>
+            </div>
+        </div>
+
+        <!-- Таблица товаров -->
+        <div class="section">
+            <div class="section-title">📋 ТОВАРНЫЙ РАЗДЕЛ</div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Артикул</th>
+                    <th>Наименование товара</th>
+                    <th>Производитель</th>
+                    <th>Кол-во</th>
+                    <th>Цена, руб.</th>
+                    <th>Сумма, руб.</th>
+                    <th>Вес, кг</th>
+                    <th>Статус</th>
+                </tr>
+                </thead>
+                <tbody id="productsTable">
+                <!-- Данные заполняются через JavaScript -->
+                </tbody>
+                <tfoot>
+                <tr class="total-row">
+                    <td colspan="3"><strong>ИТОГО:</strong></td>
+                    <td class="data-field" id="totalQuantity"></td>
+                    <td>-</td>
+                    <td class="data-field" id="totalAmount"></td>
+                    <td class="data-field" id="totalWeight"></td>
+                    <td>-</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Подписи и системная информация -->
+        <div class="signature-block">
+            <div class="signature">
+                <div class="signature-title">Отгрузку разрешил</div>
+                <div class="signature-line"></div>
+                <div class="data-field" id="approvedBy"></div>
+            </div>
+            <!-- ... остальные подписи ... -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Функция для получения параметров из URL
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // Функция форматирования даты
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU');
+    }
+
+    // Функция форматирования чисел (денежные значения)
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('ru-RU', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    // Основная функция загрузки данных
+    async function loadTtnData() {
+        const shipmentId = getUrlParameter('shipmentId');
+
+        if (!shipmentId) {
+            showError('Не указан ID отгрузки в параметрах URL');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/ttn/${shipmentId}`);
+
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            renderTtnDocument(data);
+
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+            showError('Не удалось загрузить данные документа: ' + error.message);
+        }
+    }
+
+    // Функция отображения документа
+    function renderTtnDocument(data) {
+        // Заполняем основную информацию
+        document.getElementById('documentNumber').textContent = data.documentNumber;
+        document.getElementById('documentDate').textContent = formatDate(data.documentDate);
+
+        // Заполняем информацию об организациях
+        document.getElementById('shipper').innerHTML = `
+        ${data.organizationFrom.name}<br>
+        Адрес: ${data.organizationFrom.address}<br>
+        Тел: ${data.organizationFrom.phone}
+    `;
+        document.getElementById('shipperOkpo').textContent = data.organizationFrom.okpo;
+
+        document.getElementById('consignee').innerHTML = `
+        ${data.organizationTo.name}<br>
+        Адрес: ${data.organizationTo.address}<br>
+        Тел: ${data.organizationTo.phone}
+    `;
+        document.getElementById('consigneeOkpo').textContent = data.organizationTo.okpo;
+
+        // Заполняем таблицу товаров
+        const productsTable = document.getElementById('productsTable');
+        productsTable.innerHTML = data.products.map(product => `
+        <tr>
+            <td class="data-field">${product.articleNumber}</td>
+            <td class="data-field">
+                <strong>${product.name}</strong><br>
+                <small>${product.description || ''}</small>
+            </td>
+            <td class="data-field">${product.manufacturer}</td>
+            <td class="data-field">${product.quantity}</td>
+            <td class="data-field">${formatCurrency(product.price)}</td>
+            <td class="data-field">${formatCurrency(product.total)}</td>
+            <td class="data-field">${product.weight}</td>
+            <td>
+                <span class="status-badge status-${product.status}">
+                    ${product.status}
+                </span>
+            </td>
+        </tr>
+    `).join('');
+
+        // Заполняем итоги
+        document.getElementById('totalQuantity').textContent = data.totals.quantity;
+        document.getElementById('totalAmount').textContent = formatCurrency(data.totals.amount);
+        document.getElementById('totalWeight').textContent = data.totals.weight;
+
+        // Заполняем подписи
+        document.getElementById('approvedBy').textContent =
+            `${data.personnel.approvedBy.position} - ${data.personnel.approvedBy.name}`;
+
+        // Показываем основной контент
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+    }
+
+    // Функция отображения ошибки
+    function showError(message) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('errorMessage').textContent = message;
+    }
+
+    // Загружаем данные при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadTtnData);
+
+    // Функция для печати
+    function printDocument() {
+        window.print();
+    }
+
+    // Добавляем кнопку печати (опционально)
+    document.addEventListener('DOMContentLoaded', function() {
+        const printButton = document.createElement('button');
+        printButton.textContent = '🖨️ Печать';
+        printButton.style.position = 'fixed';
+        printButton.style.top = '10px';
+        printButton.style.right = '10px';
+        printButton.style.zIndex = '1000';
+        printButton.onclick = printDocument;
+        document.body.appendChild(printButton);
+    });
+</script>
+</body>
+</html>

@@ -20,8 +20,9 @@ public interface RackRepository extends JpaRepository<Rack , Long> {
     List<Rack> findByZoneId(@Param("zoneId") Long zoneId);
 
     long countByZone(StorageZone zone);
+    // Добавляем недостающие методы
 
-    // В ShelfRepository
+    // Добавляем недостающие методы
     @Query("SELECT MAX(s.level) FROM Shelf s WHERE s.rack = :rack")
     Integer findMaxLevelByRack(@Param("rack") Rack rack);
 

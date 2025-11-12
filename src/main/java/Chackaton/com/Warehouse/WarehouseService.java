@@ -30,16 +30,6 @@ public class WarehouseService {
         this.organizationRepository = organizationRepository;
     }
 
-    public Warehouse updateWarehouse(Warehouse warehouse) {
-        Warehouse updateWarehouse = warehouseRepository.findById(warehouse.getId())
-                .orElseThrow(() -> new RuntimeException("Склад не найден"));
-
-        updateWarehouse.setName(warehouse.getName());
-        updateWarehouse.setAddress(warehouse.getAddress());
-        return warehouseRepository.save(updateWarehouse);
-    }
-
-
     public Warehouse createWarehouse(Warehouse warehouse, Organization organization) {
 
         if (!organizationRepository.existsById(organization.getId())) {
@@ -63,6 +53,18 @@ public class WarehouseService {
 
     }
 
+    public Warehouse updateWarehouse(Warehouse warehouse) {
+        Warehouse updateWarehouse = warehouseRepository.findById(warehouse.getId())
+                .orElseThrow(() -> new RuntimeException("Склад не найден"));
+
+        updateWarehouse.setName(warehouse.getName());
+        updateWarehouse.setAddress(warehouse.getAddress());
+        return warehouseRepository.save(updateWarehouse);
+    }
+
+
+
+
     public Warehouse findById(Long warehouseId) {
         return warehouseRepository.findById(warehouseId)
                 .orElseThrow(() -> new IllegalArgumentException("Скалада с таким " + warehouseId + "не существует"));
@@ -73,12 +75,11 @@ public class WarehouseService {
             throw new IllegalArgumentException("Склада с таким " + id + "нет");
         }
         warehouseRepository.deleteById(id);
-        ;
+
 
     }
 
     public List<Warehouse> findAllByOrganization(Organization organization) {
-        // Используем добавленный в репозиторий метод
         return warehouseRepository.findByOrganization(organization);
     }
 
@@ -92,13 +93,12 @@ public class WarehouseService {
         Integer currentCapacity = calculateCurrentCapacity(warehouse);
 
         warehouse.setCurrentCapacity(currentCapacity);
-        // Можно добавить поле currentVolume если нужно
+        warehouse.setMaxVolume(currentVolume);
+
         warehouseRepository.save(warehouse);
     }
 
     private Integer calculateCurrentCapacity(Warehouse warehouse) {
-        // Логика расчета текущей загрузки в паллетах/единицах
-        // Например, на основе количества StockItem и их объема
         List<StorageZone> zones = storageZoneRepository.findByWarehouse(warehouse);
         return zones.stream()
                 .mapToInt(zone -> zone.getRacks().stream()

@@ -29,7 +29,6 @@ public class StockService {
         this.shelfRepository = shelfRepository;
     }
 
-    // Добавить товар на полку
     @Transactional
     public StockItem addProductToShelf(Product product, Shelf shelf, Integer quantity, Organization organization) {
 
@@ -99,12 +98,12 @@ public class StockService {
         addProductToShelf(product, toShelf, quantity, organization);
     }
 
-    // Найти все места хранения товара в организации
+
     public List<StockItem> findProductLocations(Product product, Organization organization) {
         return stockItemRepository.findByProductAndOrganization(product, organization);
     }
 
-    // Получить общее количество товара в организации
+    // получить общее количество товара в организации
     public Integer getTotalProductQuantity(Product product, Organization organization) {
         List<StockItem> stockItems = stockItemRepository.findByProductAndOrganization(product, organization);
         return stockItems.stream()

@@ -18,7 +18,6 @@ public class TtnDocumentDto {
     private TtnPersonnelDto personnel;
     private TtnSystemInfoDto systemInfo;
 
-    // Конструкторы, геттеры и сеттеры
     public TtnDocumentDto() {}
 
     public TtnDocumentDto(Long id, String documentNumber, LocalDateTime documentDate,

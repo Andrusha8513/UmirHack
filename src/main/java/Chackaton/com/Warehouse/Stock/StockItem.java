@@ -38,7 +38,7 @@ public class StockItem {
 
 
     private String batchNumber;     // Номер партии
-    private LocalDateTime expiryDate; // Срок годности
+    private LocalDateTime expiryDate; // Срок годности , валидацию надо в перспективе добавить , типа продукт сгнил
     private LocalDateTime manufacturedDate; // Дата производства
 
 

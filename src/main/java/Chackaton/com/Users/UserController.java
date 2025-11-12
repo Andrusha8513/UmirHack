@@ -54,6 +54,19 @@ public class UserController {
         }
     }
 
+    @PostMapping("/addFullName/{userId}")
+    public ResponseEntity<?> addFullName(@PathVariable Long userId,
+                                         @RequestBody Users users){
+        try {
+
+        Users fullName =  userService.addFullName(userId ,users.getName(),users.getLastName() ,users.getSurname());
+        return ResponseEntity.ok(fullName);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
     @GetMapping("/confirm")
     public ResponseEntity<String> confirm(@RequestParam("code") String code) {
         boolean isConfirmed = userService.confirmRegistration(code);
@@ -81,6 +94,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PostMapping("/password/reset-confirm")
     public ResponseEntity<?> confirmPasswordReset(@RequestBody Map<String, String> payload) {

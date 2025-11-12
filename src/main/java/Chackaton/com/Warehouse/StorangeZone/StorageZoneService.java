@@ -10,8 +10,8 @@ public class StorageZoneService {
 
     private final StorageZoneRepository storageZoneRepository;
 
-    public StorageZoneService (StorageZoneRepository  storageZoneRepository){
-        this.storageZoneRepository =storageZoneRepository;
+    public StorageZoneService(StorageZoneRepository storageZoneRepository) {
+        this.storageZoneRepository = storageZoneRepository;
     }
 
     public StorageZone createStorageZone(StorageZone storageZone, Warehouse warehouse) {
@@ -29,6 +29,9 @@ public class StorageZoneService {
     public StorageZone updateStorageZone(Long zoneId, StorageZone updatedZone) {
         StorageZone existingZone = storageZoneRepository.findById(zoneId)
                 .orElseThrow(() -> new RuntimeException("Зона не найдена"));
+if(storageZoneRepository.existsByNameAndWarehouse(updatedZone.getName() , updatedZone.getWarehouse())){
+    throw new IllegalArgumentException("Зона с таким названием уже существует ");
+}
 
         existingZone.setName(updatedZone.getName());
         existingZone.setDescription(updatedZone.getDescription());
@@ -49,12 +52,13 @@ public class StorageZoneService {
         storageZoneRepository.delete(zone);
     }
 
-    public StorageZone  findById(Long id){
+    public StorageZone findById(Long id) {
         return storageZoneRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Не найдена зона с таким " + id));
     }
-//вроде збс
-public List<StorageZone> findByWarehouse(Long warehouseId) {
-    return storageZoneRepository.findByWarehouseId(warehouseId);
-}
+
+    //вроде збс
+    public List<StorageZone> findByWarehouse(Long warehouseId) {
+        return storageZoneRepository.findByWarehouseId(warehouseId);
+    }
 }

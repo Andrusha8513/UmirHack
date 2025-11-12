@@ -11,7 +11,7 @@ public class ShelfCreateRequest {
     private Double volume;
     private Set<ShelfStatus> statuses;
 
-    // Конструкторы
+
     public ShelfCreateRequest() {}
 
     public ShelfCreateRequest(Integer level, Integer position, Double maxWeight, Double volume, Set<ShelfStatus> statuses) {
@@ -22,7 +22,7 @@ public class ShelfCreateRequest {
         this.statuses = statuses;
     }
 
-    // Геттеры и сеттеры
+
     public Integer getLevel() { return level; }
     public void setLevel(Integer level) { this.level = level; }
 
