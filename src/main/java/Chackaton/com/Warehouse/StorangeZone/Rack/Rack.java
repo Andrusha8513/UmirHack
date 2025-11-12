@@ -21,30 +21,25 @@ public class Rack {
 
     @Column(nullable = false)
     private String code; // "A-01", "B-12" - уникальный код как в озоне крч
-
     private String name;
 
-    private Integer rowNumber;     // Номер ряда
-    private Integer sectionNumber; // Номер секции
 
-    // Характеристики
-    private Integer totalLevels;   // Количество уровней/полок
+
+
+
+    private Integer totalLevels;   // Количество уровней/полок , нахуй я это решали делать
     private Double maxWeight;      // Макс. нагрузка (кг)
     private Double height;         // Высота (м)
     private Double width;          // Ширина (м)
     private Double depth;          // Глубина (м)
 
-//    @Enumerated(EnumType.STRING)
-//    private RackType type;
 
     @ElementCollection(targetClass = RackType.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "rack_type", joinColumns = @JoinColumn(name = "rack_id"))
     @Enumerated(EnumType.STRING)
     private Set<RackType> types;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "warehouse_id")
-//    private Warehouse warehouse;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zone_id" , nullable = false)
@@ -62,8 +57,6 @@ public class Rack {
                 Long id,
                 Double maxWeight,
                 String name,
-                Integer rowNumber,
-                Integer sectionNumber,
                 Integer totalLevels,
                 Double width) {
         this.code = code;
@@ -73,8 +66,6 @@ public class Rack {
         this.id = id;
         this.maxWeight = maxWeight;
         this.name = name;
-        this.rowNumber = rowNumber;
-        this.sectionNumber = sectionNumber;
         this.totalLevels = totalLevels;
         this.width = width;
     }
@@ -138,21 +129,6 @@ public class Rack {
         this.name = name;
     }
 
-    public Integer getRowNumber() {
-        return rowNumber;
-    }
-
-    public void setRowNumber(Integer rowNumber) {
-        this.rowNumber = rowNumber;
-    }
-
-    public Integer getSectionNumber() {
-        return sectionNumber;
-    }
-
-    public void setSectionNumber(Integer sectionNumber) {
-        this.sectionNumber = sectionNumber;
-    }
 
     public List<Shelf> getShelves() {
         return shelves;

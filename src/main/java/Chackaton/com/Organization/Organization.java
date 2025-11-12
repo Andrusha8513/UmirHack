@@ -19,8 +19,6 @@ public class Organization {
     private String name;
     private String address;
 
-//    @OneToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-//    private Users owner;
 @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
 @JsonIgnore
 private Set<OrganizationMembership> members = new HashSet<>();
@@ -71,13 +69,7 @@ private Set<OrganizationMembership> members = new HashSet<>();
         this.name = name;
     }
 
-//    public Users getOwner() {
-//        return owner;
-//    }
-//
-//    public void setOwner(Users owner) {
-//        this.owner = owner;
-//    }
+
 
 
     public Set<OrganizationMembership> getMembers() {

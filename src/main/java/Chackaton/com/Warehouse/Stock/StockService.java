@@ -1,24 +1,34 @@
 package Chackaton.com.Warehouse.Stock;
 
+import Chackaton.com.DTO.RackLoadInfo;
+import Chackaton.com.DTO.ShelfLoadInfo;
 import Chackaton.com.DTO.StockItemDto;
 import Chackaton.com.Organization.Organization;
 import Chackaton.com.Product.Product;
+import Chackaton.com.Warehouse.StorangeZone.Rack.Rack;
 import Chackaton.com.Warehouse.StorangeZone.Rack.Shelf.Shelf;
+import Chackaton.com.Warehouse.StorangeZone.Rack.Shelf.ShelfRepository;
 import Chackaton.com.Warehouse.Warehouse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StockService {
     private final StockItemRepository stockItemRepository;
+    private final ShelfRepository shelfRepository;
 
-    public StockService(StockItemRepository stockItemRepository) {
+    public StockService(StockItemRepository stockItemRepository,
+                        ShelfRepository shelfRepository) {
         this.stockItemRepository = stockItemRepository;
+        this.shelfRepository = shelfRepository;
     }
 
-    // Добавить товар на полку
     @Transactional
     public StockItem addProductToShelf(Product product, Shelf shelf, Integer quantity, Organization organization) {
 
@@ -27,12 +37,12 @@ public class StockService {
 
 
         Double addVolume = product.getVolume() * quantity;
-        if(addVolume == null || addVolume <= 0){
+        if (addVolume == null || addVolume <= 0) {
             throw new IllegalArgumentException("Невозможно добавить товар: не указан объем продукта.");
         }
         //текущи занятый объём
         Double currentVolume = stockItemRepository.getTotalVolumeInWarehouse(warehouse);
-        if(currentVolume == null){
+        if (currentVolume == null) {
             currentVolume = 0.0;
         }
         if (currentVolume + addVolume > maxVolume) {
@@ -41,7 +51,6 @@ public class StockService {
                             currentVolume, addVolume, maxVolume)
             );
         }
-
 
 
         // Проверяем, есть ли уже этот товар на этой полке
@@ -89,12 +98,12 @@ public class StockService {
         addProductToShelf(product, toShelf, quantity, organization);
     }
 
-    // Найти все места хранения товара в организации
+
     public List<StockItem> findProductLocations(Product product, Organization organization) {
         return stockItemRepository.findByProductAndOrganization(product, organization);
     }
 
-    // Получить общее количество товара в организации
+    // получить общее количество товара в организации
     public Integer getTotalProductQuantity(Product product, Organization organization) {
         List<StockItem> stockItems = stockItemRepository.findByProductAndOrganization(product, organization);
         return stockItems.stream()
@@ -134,5 +143,86 @@ public class StockService {
 
         return dto;
     }
+
+    // Расчет загрузки полки
+    public ShelfLoadInfo calculateShelfLoad(Shelf shelf) {
+        List<StockItem> stockItems = stockItemRepository.findByShelf(shelf);
+
+        double totalWeight = 0.0;
+        double totalVolume = 0.0;
+        int totalItems = 0;
+
+        for (StockItem item : stockItems) {
+            Product product = item.getProduct();
+            int quantity = item.getQuantity();
+
+            if (product.getWeight() != null) {
+                totalWeight += product.getWeight() * quantity;
+            }
+            if (product.getVolume() != null) {
+                totalVolume += product.getVolume() * quantity;
+            }
+            totalItems += quantity;
+        }
+
+        return new ShelfLoadInfo(shelf, totalWeight, totalVolume, totalItems);
+    }
+
+    public RackLoadInfo calculateRackLoad(Rack rack) {
+        List<Shelf> shelves = shelfRepository.findByRack(rack);
+
+        // Загружаем все StockItem для всех полок стеллажа одним запросом
+        List<StockItem> allStockItems = stockItemRepository.findByShelvesWithProduct(shelves);
+
+        // Группируем по полкам для быстрого доступа
+        Map<Long, List<StockItem>> stockByShelf = allStockItems.stream()
+                .collect(Collectors.groupingBy(item -> item.getShelf().getId()));
+
+        double totalWeight = 0.0;
+        double totalVolume = 0.0;
+        int totalItems = 0;
+        Map<Long, ShelfLoadInfo> shelfLoads = new HashMap<>();
+
+        for (Shelf shelf : shelves) {
+            List<StockItem> shelfItems = stockByShelf.getOrDefault(shelf.getId(), new ArrayList<>());
+            ShelfLoadInfo shelfLoad = calculateShelfLoadFromItems(shelf, shelfItems);
+            totalWeight += shelfLoad.getTotalWeight();
+            totalVolume += shelfLoad.getTotalVolume();
+            totalItems += shelfLoad.getTotalItems();
+            shelfLoads.put(shelf.getId(), shelfLoad);
+        }
+
+        return new RackLoadInfo(rack, totalWeight, totalVolume, totalItems, shelfLoads);
+    }
+
+    private ShelfLoadInfo calculateShelfLoadFromItems(Shelf shelf, List<StockItem> stockItems) {
+        double totalWeight = 0.0;
+        double totalVolume = 0.0;
+        int totalItems = 0;
+
+        for (StockItem item : stockItems) {
+            Product product = item.getProduct();
+            int quantity = item.getQuantity();
+
+            if (product.getWeight() != null) {
+                totalWeight += product.getWeight() * quantity;
+            }
+            if (product.getVolume() != null) {
+                totalVolume += product.getVolume() * quantity;
+            }
+            totalItems += quantity;
+        }
+
+        return new ShelfLoadInfo(shelf, totalWeight, totalVolume, totalItems);
+    }
+
+    // Новый метод для массового преобразования
+    public List<StockItemDto> toStockItemDtoList(List<StockItem> stockItems) {
+        // Предполагаем, что stockItems уже загружены с JOIN FETCH
+        return stockItems.stream()
+                .map(this::toStockItemDto)
+                .collect(Collectors.toList());
+    }
+
 
 }

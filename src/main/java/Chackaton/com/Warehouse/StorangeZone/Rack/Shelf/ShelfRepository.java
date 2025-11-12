@@ -11,13 +11,19 @@ import java.util.Optional;
 public interface ShelfRepository extends JpaRepository<Shelf, Long> {
     boolean existsByRackAndCode(Rack rack, String code);
     Optional<Shelf> findByRackAndCode(Rack rack, String code);
-
-    // Найти полку по коду
     Optional<Shelf> findByCode(String code);
-
-    // Найти все полки стеллажа
     List<Shelf> findByRack(Rack rack);
 
     @Query("SELECT r FROM Shelf r WHERE r.rack.id = :rackId")
-    List<Shelf> findByRackId(@Param("zoneId") Long rackId);
+    List<Shelf> findByRackId(@Param("rackId") Long rackId);
+
+
+
+    // В ShelfRepository
+    @Query("SELECT MAX(s.level) FROM Shelf s WHERE s.rack = :rack")
+    Integer findMaxLevelByRack(@Param("rack") Rack rack);
+
+    @Query("SELECT MAX(s.position) FROM Shelf s WHERE s.rack = :rack AND s.level = :level")
+    Integer findMaxPositionByRackAndLevel(@Param("rack") Rack rack, @Param("level") Integer level);
+
 }

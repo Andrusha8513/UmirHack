@@ -39,11 +39,7 @@ public class Warehouse {
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
     private List<StorageZone> zones = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL)
-//    private List<Rack> racks = new ArrayList<>();
-
-//    @Enumerated(EnumType.STRING)
-//    private StorageType primaryStorageType;
+;
 
     @ElementCollection(targetClass = StatusWarehouse.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "warehouse_statuses", joinColumns = @JoinColumn(name = "warehouse_id"))
@@ -89,6 +85,9 @@ public class Warehouse {
     }
 
     public void setCurrentCapacity(Integer currentCapacity) {
+        if (currentCapacity != null && currentCapacity < 0) {
+            throw new IllegalArgumentException("Текущая загрузка не может быть отрицательной");
+        }
         this.currentCapacity = currentCapacity;
     }
 
@@ -105,6 +104,9 @@ public class Warehouse {
     }
 
     public void setTotalArea(Double totalArea) {
+        if (totalArea != null && totalArea <= 0) {
+            throw new IllegalArgumentException("Площадь должна быть больше 0");
+        }
         this.totalArea = totalArea;
     }
 
@@ -113,6 +115,9 @@ public class Warehouse {
     }
 
     public void setTotalCapacity(Integer totalCapacity) {
+        if (totalCapacity != null && totalCapacity < 0) {
+            throw new IllegalArgumentException("Вместимость не может быть отрицательной");
+        }
         this.totalCapacity = totalCapacity;
     }
 
@@ -152,7 +157,11 @@ public class Warehouse {
         return maxVolume;
     }
 
+
     public void setMaxVolume(Double maxVolume) {
+        if (maxVolume != null && maxVolume <= 0) {
+            throw new IllegalArgumentException("Максимальный объем должен быть больше 0");
+        }
         this.maxVolume = maxVolume;
     }
 }

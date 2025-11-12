@@ -18,6 +18,10 @@ public class Users implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+    private String lastName;
+    private String surName;
+
     private String email;
     private String password;
     private String confirmationCode;
@@ -57,6 +61,51 @@ public class Users implements Serializable {
     }
 
     public Users(){
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        if(lastName.length() > 20){
+            throw new IllegalArgumentException("Фамилия не может быть такой длинной ");
+        }
+        this.lastName = lastName;
+    }
+
+    public Set<OrganizationMembership> getMemberships() {
+        return memberships;
+    }
+
+    public void setMemberships(Set<OrganizationMembership> memberships) {
+        this.memberships = memberships;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if(name.length() > 20){
+            throw new IllegalArgumentException("Имя не может таким длинным");
+        }
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surName;
+    }
+
+    public void setSurname(String surname) {
+        if(surname.length() > 20){
+            throw  new IllegalArgumentException("Отчество не может быть таким длинным");
+        }
+        this.surName = surname;
     }
 
     public void setEmail(String phone){

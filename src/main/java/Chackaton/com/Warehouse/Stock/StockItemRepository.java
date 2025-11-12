@@ -44,4 +44,21 @@ public interface StockItemRepository extends JpaRepository<StockItem, Long> {
     //Эта JPQL-query — ключ. Она идет по всем StockItem на складе, умножает кол-во на объем продукта и суммирует
 
     Double getTotalVolumeInWarehouse(@Param("warehouse") Warehouse warehouse);
+
+    @Query("SELECT si FROM StockItem si " +
+            "LEFT JOIN FETCH si.shelf s " +
+            "LEFT JOIN FETCH s.rack r " +
+            "LEFT JOIN FETCH r.zone z " +
+            "LEFT JOIN FETCH z.warehouse w " +
+            "LEFT JOIN FETCH si.product p " +
+            "WHERE si.product = :product AND si.organization = :organization")
+    List<StockItem> findByProductAndOrganizationWithLocation(@Param("product") Product product,
+                                                             @Param("organization") Organization organization);
+
+    @Query("SELECT si FROM StockItem si " +
+            "LEFT JOIN FETCH si.product " +
+            "WHERE si.shelf IN :shelves")
+    List<StockItem> findByShelvesWithProduct(@Param("shelves") List<Shelf> shelves);
+
+    List<StockItem> findByOrganizationAndStatus(Organization organizationFrom, StockItemStatus stockItemStatus);
 }

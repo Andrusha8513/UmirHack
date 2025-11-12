@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Товарно-транспортная накладная - UMIRHACK WMS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            font-size: 12px;
+            line-height: 1.2;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 2px solid #2c3e50;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .system-header {
+            background: #3498db;
+            color: white;
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .form-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .form-info {
+            font-size: 10px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .form-number {
+            text-align: right;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 4px;
+            text-align: center;
+            vertical-align: top;
+        }
+        th {
+            font-weight: bold;
+            background-color: #ecf0f1;
+        }
+        .data-field {
+            background: #f8f9fa;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin: 2px 0;
+            min-height: 18px;
+        }
+        .signature-block {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .signature {
+            width: 30%;
+            text-align: center;
+        }
+        .signature-line {
+            border-bottom: 1px solid #000;
+            margin-bottom: 5px;
+            padding-top: 25px;
+            min-height: 20px;
+        }
+        .signature-title {
+            font-size: 10px;
+            text-align: center;
+            color: #666;
+        }
+        .footer-note {
+            font-size: 9px;
+            margin-top: 5px;
+            color: #7f8c8d;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #d5edff;
+        }
+        .organization-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .org-block {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .status-SHIPPED { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="system-header">
+        UMIRHACK Warehouse Management System - Товарно-транспортная накладная
+    </div>
+
+    <div class="header">
+        <div class="form-title">ТОВАРНО-ТРАНСПОРТНАЯ НАКЛАДНАЯ</div>
+        <div class="form-info">Документ сгенерирован автоматически системой управления складом</div>
+    </div>
+
+    <div class="form-number">
+        Накладная №: <span class="data-field">TTN-2024-001</span>
+        Дата: <span class="data-field">15.01.2024</span>
+    </div>
+
+    <!-- Организации -->
+    <div class="organization-info">
+        <div class="org-block">
+            <strong>👤 Грузоотправитель</strong>
+            <div class="data-field">
+                ООО "UMIRHACK Склад"<br>
+                Адрес: г. Москва, ул. Складская, д. 1<br>
+                Тел: +7 (495) 123-45-67
+            </div>
+            <div>Код по ОКПО: <span class="data-field">12345678</span></div>
+        </div>
+        <div class="org-block">
+            <strong>🏢 Грузополучатель</strong>
+            <div class="data-field">
+                ООО "АвтоДеталь Трейд"<br>
+                Адрес: г. Москва, ул. Торговая, д. 15<br>
+                Тел: +7 (495) 765-43-21
+            </div>
+            <div>Код по ОКПО: <span class="data-field">87654321</span></div>
+        </div>
+    </div>
+
+    <!-- Информация о складе -->
+    <div class="section">
+        <div class="section-title">📦 СКЛАДСКАЯ ИНФОРМАЦИЯ</div>
+        <table>
+            <tr>
+                <td><strong>Склад отгрузки:</strong></td>
+                <td class="data-field">Центральный склад UMIRHACK</td>
+                <td><strong>Зона хранения:</strong></td>
+                <td class="data-field">Зона А - Автозапчасти</td>
+                <td><strong>Статус отгрузки:</strong></td>
+                <td>
+                    <span class="data-field status-badge status-SHIPPED">SHIPPED</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Адрес склада:</strong></td>
+                <td class="data-field" colspan="3">г. Москва, ул. Складская, д. 1, стр. 1</td>
+                <td><strong>Дата отгрузки:</strong></td>
+                <td class="data-field">15.01.2024 08:30:00</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Товарный раздел -->
+    <div class="section">
+        <div class="section-title">📋 ТОВАРНЫЙ РАЗДЕЛ</div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Артикул</th>
+                <th>Наименование товара</th>
+                <th>Производитель</th>
+                <th>Кол-во</th>
+                <th>Цена, руб.</th>
+                <th>Сумма, руб.</th>
+                <th>Вес, кг</th>
+                <th>Объем, м³</th>
+                <th>Место хранения</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="data-field">ART-001</td>
+                <td class="data-field">
+                    <strong>Масляный фильтр двигателя</strong><br>
+                    <small>Фильтр масляный для двигателей VW/Audi 2.0 TDI</small>
+                </td>
+                <td class="data-field">MANN Filter</td>
+                <td class="data-field">10</td>
+                <td class="data-field">1 250.50</td>
+                <td class="data-field">12 505.00</td>
+                <td class="data-field">0.8</td>
+                <td class="data-field">0.002</td>
+                <td class="data-field">
+                    Центральный<br>
+                    Зона А<br>
+                    A-01<br>
+                    A-01-01-01
+                </td>
+                <td>
+                    <span class="status-badge status-SHIPPED">SHIPPED</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="data-field">ART-002</td>
+                <td class="data-field">
+                    <strong>Воздушный фильтр салона</strong><br>
+                    <small>Фильтр воздушный салонный для BMW 3-series F30</small>
+                </td>
+                <td class="data-field">Bosch</td>
+                <td class="data-field">5</td>
+                <td class="data-field">890.00</td>
+                <td class="data-field">4 450.00</td>
+                <td class="data-field">0.3</td>
+                <td class="data-field">0.001</td>
+                <td class="data-field">
+                    Центральный<br>
+                    Зона А<br>
+                    A-01<br>
+                    A-01-01-02
+                </td>
+                <td>
+                    <span class="status-badge status-SHIPPED">SHIPPED</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="data-field">ART-003</td>
+                <td class="data-field">
+                    <strong>Тормозные колодки</strong><br>
+                    <small>Тормозные колодки передние для Mercedes-Benz C-class W205</small>
+                </td>
+                <td class="data-field">Brembo</td>
+                <td class="data-field">8</td>
+                <td class="data-field">2 450.00</td>
+                <td class="data-field">19 600.00</td>
+                <td class="data-field">2.5</td>
+                <td class="data-field">0.005</td>
+                <td class="data-field">
+                    Центральный<br>
+                    Зона Б<br>
+                    B-02<br>
+                    B-02-03-01
+                </td>
+                <td>
+                    <span class="status-badge status-SHIPPED">SHIPPED</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="data-field">ART-004</td>
+                <td class="data-field">
+                    <strong>Свечи зажигания</strong><br>
+                    <small>Свечи зажигания иридиевые для Toyota Camry 2018+</small>
+                </td>
+                <td class="data-field">NGK</td>
+                <td class="data-field">20</td>
+                <td class="data-field">450.75</td>
+                <td class="data-field">9 015.00</td>
+                <td class="data-field">0.1</td>
+                <td class="data-field">0.0005</td>
+                <td class="data-field">
+                    Центральный<br>
+                    Зона В<br>
+                    C-03<br>
+                    C-03-02-04
+                </td>
+                <td>
+                    <span class="status-badge status-SHIPPED">SHIPPED</span>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="total-row">
+                <td colspan="3"><strong>ИТОГО:</strong></td>
+                <td class="data-field">43</td>
+                <td>-</td>
+                <td class="data-field">45 570.00</td>
+                <td class="data-field">33.5</td>
+                <td class="data-field">0.032</td>
+                <td colspan="2">-</td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer-note">
+            Товарная накладная содержит 4 наименований
+        </div>
+    </div>
+
+    <!-- Итоговая информация -->
+    <div class="section">
+        <div class="section-title">💰 ФИНАНСОВАЯ ИНФОРМАЦИЯ</div>
+        <table>
+            <tr>
+                <td>Общее количество мест:</td>
+                <td class="data-field">43</td>
+                <td>Общая масса (брутто):</td>
+                <td class="data-field">36.85</td>
+                <td>кг</td>
+                <td>Общий объем:</td>
+                <td class="data-field">0.032</td>
+                <td>м³</td>
+            </tr>
+            <tr>
+                <td>Количество товаров:</td>
+                <td class="data-field">4</td>
+                <td>Общая сумма:</td>
+                <td class="data-field" colspan="3">45 570.00 руб.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Подписи -->
+    <div class="signature-block">
+        <div class="signature">
+            <div class="signature-title">Отгрузку разрешил</div>
+            <div class="signature-line"></div>
+            <div class="data-field">Начальник склада - Иванов А.С.</div>
+        </div>
+
+        <div class="signature">
+            <div class="signature-title">Кладовщик</div>
+            <div class="signature-line"></div>
+            <div class="data-field">Петрова М.И.</div>
+        </div>
+
+        <div class="signature">
+            <div class="signature-title">Отгрузку произвел</div>
+            <div class="signature-line"></div>
+            <div class="data-field">Кладовщик - Сидоров В.П.</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+        <strong>М.П.</strong> «15.01.2024» г.
+    </div>
+
+    <!-- Получение груза -->
+    <div class="signature-block" style="margin-top: 20px;">
+        <div class="signature">
+            <div class="signature-title">Груз к перевозке принял</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(должность перевозчика)</div>
+            <div class="signature-line"></div>
+            <div class="signature-title">(подпись)</div>
+        </div>
+
+        <div class="signature">
+            <div class="footer-note">(При личном приеме товара по количеству и ассортименту)</div>
+            <div class="signature-title">Груз получил грузополучатель</div>
+            <div class="signature-line"></div>
+            <div class="data-field">Менеджер по закупкам - Козлов Д.А.</div>
+        </div>
+    </div>
+
+    <!-- Системная информация -->
+    <div style="text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee; font-size: 9px; color: #95a5a6;">
+        Документ сгенерирован автоматически в системе UMIRHACK WMS<br>
+        Дата генерации: 15.01.2024 10:30:25 • ID операции: OP-2024-001-456 • Версия: WMS 2.1.0
+    </div>
+</div>
+</body>
+</html>

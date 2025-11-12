@@ -24,7 +24,7 @@ public class RackController {
 
     @PostMapping("{storageZoneId}")
     public ResponseEntity<?> createRack(@RequestBody Rack rack,
-                                        @PathVariable Long storageZoneId, ZoneId zoneId) {
+                                        @PathVariable Long storageZoneId) {
         try {
             StorageZone storageZone = storageZoneService.findById(storageZoneId);
             Rack rack1 = rackService.createRack(rack, storageZone);
@@ -36,7 +36,7 @@ public class RackController {
 
     }
 
-    //збс
+
     @GetMapping("/zone/{zoneId}")
     public ResponseEntity<List<Rack>> getRacksForZone(@PathVariable Long zoneId) {
         List<Rack> racks = rackService.findByZone(zoneId);

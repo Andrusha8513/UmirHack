@@ -19,7 +19,7 @@ public class Shelf {
     private String code; // "A-01-01", "B-12-03" - уникальный код
 
 
-    private Integer level;     // Уровень (1, 2, 3...)
+    private Integer level;     // Уровень (1, 2, 3...) ебалл я эти уровни  парни
     private Integer position;  // Позиция на уровне
 
 
@@ -28,15 +28,9 @@ public class Shelf {
 
 
 
-//    @Enumerated(EnumType.STRING)
-//    private ShelfStatus status = ShelfStatus.EMPTY;
 
-//    @ElementCollection(targetClass = ShelfStatus.class, fetch = FetchType.LAZY)
-//    @CollectionTable(name = "shelf_status", joinColumns = @JoinColumn(name = "shelf_id"))
-//    @Enumerated(EnumType.STRING)
-//    private Set<ShelfStatus> status;
 
-    @ElementCollection(targetClass = ShelfStatus.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = ShelfStatus.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "shelf_statuses", joinColumns = @JoinColumn(name = "shelf_id"))
     @Enumerated(EnumType.STRING)
     private Set<ShelfStatus> statuses;
